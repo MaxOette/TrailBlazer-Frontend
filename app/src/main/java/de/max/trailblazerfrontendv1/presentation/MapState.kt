@@ -20,6 +20,11 @@ import com.google.maps.android.compose.MapType
  * 4+ = man sieht nur schwarze Streifen
  * 8+ = man sieht wieder Straßenoberfläche
  * 10+ = Straßen irrelevant weil zu weit weg
+ *
+ * #####################################################
+ * Mitte von Deutschland: 50.856361,10.0667911
+ * #####################################################
+ *
  */
 data class MapState(
     val properties: MapProperties = MapProperties(mapType = MapType.TERRAIN)
