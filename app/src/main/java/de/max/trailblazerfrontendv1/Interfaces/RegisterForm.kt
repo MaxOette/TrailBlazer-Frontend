@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -53,11 +54,11 @@ import de.max.trailblazerfrontendv1.MainActivity
 
 
 @Composable
-fun LoginForm() {
+fun RegisterForm() {
     Surface {
 
         var credentials by remember {
-            mutableStateOf(Credentials())
+            mutableStateOf(RegisterCredentials())
         }
         val context = LocalContext.current
 
@@ -69,41 +70,45 @@ fun LoginForm() {
                 .padding(horizontal = 30.dp)
         ) {
 
-            LoginField(
-                value = credentials.login,
-                onChange = { data -> credentials = credentials.copy(login = data) },
+            EmailField(
+                value = credentials.email,
+                onChange = { data -> credentials = credentials.copy(email = data) },
                 modifier = Modifier.fillMaxWidth()
             )
-            PasswordField(
+            RegisterFirstNameField(
+                value = credentials.firstName,
+                onChange = { data -> credentials = credentials.copy(firstName = data) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            RegisterLastNameField(
+                value = credentials.lastName,
+                onChange = { data -> credentials = credentials.copy(lastName = data) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            RegisterPasswordField(
                 value = credentials.pwd,
                 onChange = { data -> credentials = credentials.copy(pwd = data) },
-                submit = { checkCredentials(credentials, context) },
+                submit = { checkRegisterCredentials(credentials, context) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(10.dp))
-            LabeledCheckbox(
-                "Remember Me",
-                onCheckChanged = {
-                    credentials = credentials.copy(remember = credentials.remember)
-                },
-                isChecked = credentials.remember
-            )
-            Spacer(modifier = Modifier.height(20.dp))
+
             Button(
-                onClick = { checkCredentials(credentials, context) },
+                onClick = { checkRegisterCredentials(credentials, context) },
                 enabled = credentials.isNotEmpty(),
                 shape = RoundedCornerShape(5.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("login")
+                Text("register")
             }
         }
 
     }
 }
 
-fun checkCredentials(creds: Credentials, context: Context) {
-    if(creds.isNotEmpty() && creds.login == "admin"){
+//todo refactor
+fun checkRegisterCredentials(creds: RegisterCredentials, context: Context) {
+    if(creds.isNotEmpty() && creds.email == "admin"){
         context.startActivity(Intent(context, MainActivity::class.java))
         (context as Activity).finish()
     }else{
@@ -111,16 +116,19 @@ fun checkCredentials(creds: Credentials, context: Context) {
     }
 }
 
-data class Credentials(
-    var login: String = "",
+data class RegisterCredentials(
+    var email: String = "",
     var pwd: String = "",
-    var remember: Boolean = false
+    var remember: Boolean = false,
+    var firstName: String = "",
+    var lastName: String = ""
 ) {
     fun isNotEmpty(): Boolean {
-        return login.isNotEmpty() && pwd.isNotEmpty()
+        return email.isNotEmpty() && pwd.isNotEmpty() && firstName.isNotEmpty() && lastName.isNotEmpty()
     }
 }
 
+/*
 @Composable
 fun LabeledCheckbox(
     label: String,
@@ -139,20 +147,21 @@ fun LabeledCheckbox(
         Text(label)
     }
 }
+*/
 
 @Composable
-fun LoginField(
+fun EmailField(
     value: String,
     onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "login",
-    placeholder: String = "Enter your login"
+    label: String = "Email",
+    placeholder: String = "Enter your Email"
 ) {
 
     val focusManager = LocalFocusManager.current
     val leadingIcon = @Composable {
         Icon(
-            Icons.Default.Person,
+            Icons.Default.Email,
             contentDescription = "",
             tint = MaterialTheme.colorScheme.primary
         )
@@ -175,7 +184,7 @@ fun LoginField(
 }
 
 @Composable
-fun PasswordField(
+fun RegisterPasswordField(
     value: String,
     onChange: (String) -> Unit,
     submit: () -> Unit,
@@ -225,18 +234,86 @@ fun PasswordField(
     )
 }
 
+@Composable
+fun RegisterFirstNameField(
+    value: String,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "first name",
+    placeholder: String = "Enter your first name"
+) {
+
+    val focusManager = LocalFocusManager.current
+    val leadingIcon = @Composable {
+        Icon(
+            Icons.Default.Person,
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+
+    TextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier,
+        leadingIcon = leadingIcon,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        keyboardActions = KeyboardActions(
+            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+        ),
+        placeholder = { Text(placeholder) },
+        label = { Text(label) },
+        singleLine = true,
+        visualTransformation = VisualTransformation.None
+    )
+}
+
+@Composable
+fun RegisterLastNameField(
+    value: String,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "last name",
+    placeholder: String = "Enter your last name"
+) {
+
+    val focusManager = LocalFocusManager.current
+    val leadingIcon = @Composable {
+        Icon(
+            Icons.Default.Person,
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+
+    TextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier,
+        leadingIcon = leadingIcon,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        keyboardActions = KeyboardActions(
+            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+        ),
+        placeholder = { Text(placeholder) },
+        label = { Text(label) },
+        singleLine = true,
+        visualTransformation = VisualTransformation.None
+    )
+}
+
 @Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
 @Composable
-fun GreetingPreview() {
+fun RegisterPreview() {
     TrailBlazerFrontendV1Theme {
-        LoginForm()
+        RegisterForm()
     }
 }
 
 @Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
 @Composable
-fun GreetingPreviewDark() {
+fun RegisterPreviewDark() {
     TrailBlazerFrontendV1Theme(darkTheme = true) {
-        LoginForm()
+        RegisterForm()
     }
 }
