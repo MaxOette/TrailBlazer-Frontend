@@ -11,10 +11,11 @@ import de.max.trailblazerfrontendv1.Interfaces.RegisterForm
 import de.max.trailblazerfrontendv1.ui.theme.TrailBlazerFrontendV1Theme
 
 class RegisterActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent(){
+        setContent {
             TrailBlazerFrontendV1Theme {
                 RegisterForm()
             }

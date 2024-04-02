@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TrailBlazerFrontendV1Theme {
-                //Greeting("android")
+                Greeting("android")
 
             }
 
