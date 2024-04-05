@@ -54,7 +54,7 @@ import de.max.trailblazerfrontendv1.MainActivity
 
 
 @Composable
-fun RegisterForm() {
+fun RegisterForm(onLoginClicked: () -> Unit) {
     Surface {
 
         var credentials by remember {
@@ -101,6 +101,14 @@ fun RegisterForm() {
             ) {
                 Text("register")
             }
+            Text(
+                text = "Already have an account? click here",
+                modifier = Modifier
+                    .clickable { onLoginClicked() }
+                    .padding(8.dp),
+                //style = MaterialTheme.typography.body1,
+                //color = MaterialTheme.colors.primary
+            )
         }
 
     }
@@ -302,18 +310,3 @@ fun RegisterLastNameField(
     )
 }
 
-@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-@Composable
-fun RegisterPreview() {
-    TrailBlazerFrontendV1Theme {
-        RegisterForm()
-    }
-}
-
-@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-@Composable
-fun RegisterPreviewDark() {
-    TrailBlazerFrontendV1Theme(darkTheme = true) {
-        RegisterForm()
-    }
-}

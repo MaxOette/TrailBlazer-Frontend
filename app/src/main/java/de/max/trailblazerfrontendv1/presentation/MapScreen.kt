@@ -95,7 +95,7 @@ fun MapScreen(
             onClick = {}
         )
 
-        /*
+/*
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(55.00248983,6.009073390399999), LatLng(55.092927,6.151816780799999))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(55.00248983,6.294560171199999), LatLng(55.092927,6.4373035615999985))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(55.00248983,6.580046951999998), LatLng(55.092927,6.722790342399998))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
@@ -159,6 +159,6 @@ fun MapScreen(
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(54.91205266,13.859959862399984), LatLng(55.00248983,14.002703252799984))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(54.91205266,14.145446643199984), LatLng(55.00248983,14.288190033599983))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(54.91205266,14.430933423999983), LatLng(55.00248983,14.573676814399983))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
-    */
+*/
     }
 }

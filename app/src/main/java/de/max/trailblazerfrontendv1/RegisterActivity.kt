@@ -1,5 +1,6 @@
 package de.max.trailblazerfrontendv1
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,8 +18,12 @@ class RegisterActivity : ComponentActivity() {
 
         setContent {
             TrailBlazerFrontendV1Theme {
-                RegisterForm()
+                RegisterForm(onLoginClicked = { navigateToLoginActivity() })
             }
         }
+    }
+    fun navigateToLoginActivity() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
     }
 }

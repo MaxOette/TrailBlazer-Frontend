@@ -53,7 +53,7 @@ import de.max.trailblazerfrontendv1.MainActivity
 
 
 @Composable
-fun LoginForm() {
+fun LoginForm(onRegisterClicked: () -> Unit) {
     Surface {
 
         var credentials by remember {
@@ -97,6 +97,14 @@ fun LoginForm() {
             ) {
                 Text("login")
             }
+            Text(
+                text = "Don't have an account? Register here",
+                modifier = Modifier
+                    .clickable { onRegisterClicked() }
+                    .padding(8.dp),
+                //style = MaterialTheme.typography.body1,
+                //color = MaterialTheme.colors.primary
+            )
         }
 
     }
@@ -225,18 +233,4 @@ fun PasswordField(
     )
 }
 
-@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-@Composable
-fun GreetingPreview() {
-    TrailBlazerFrontendV1Theme {
-        LoginForm()
-    }
-}
 
-@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-@Composable
-fun GreetingPreviewDark() {
-    TrailBlazerFrontendV1Theme(darkTheme = true) {
-        LoginForm()
-    }
-}
