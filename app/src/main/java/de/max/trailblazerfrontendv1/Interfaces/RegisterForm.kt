@@ -50,7 +50,12 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import de.max.trailblazerfrontendv1.Api.RegisterApi
+import de.max.trailblazerfrontendv1.Api.RegisterUserData
 import de.max.trailblazerfrontendv1.MainActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -114,11 +119,21 @@ fun RegisterForm(onLoginClicked: () -> Unit) {
     }
 }
 
-//todo refactor
+
 fun checkRegisterCredentials(creds: RegisterCredentials, context: Context) {
-    if(creds.isNotEmpty() && creds.email == "admin"){
-        context.startActivity(Intent(context, MainActivity::class.java))
-        (context as Activity).finish()
+    if(creds.isNotEmpty()){
+            val registerUserData = RegisterUserData(
+                email = creds.email,
+                password = creds.pwd,
+                firstname = creds.firstName,
+                lastname = creds.lastName
+            )
+
+//        context.startActivity(Intent(context, MainActivity::class.java))
+//        (context as Activity).finish()
+        GlobalScope.launch(Dispatchers.IO) {
+            RegisterApi.registerService.postRegisterUser(registerUserData)
+        }
     }else{
         Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
     }

@@ -1,7 +1,9 @@
 package de.max.trailblazerfrontendv1
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -59,24 +61,35 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun CheckHealthButton(){
-        val health : Boolean
+    fun CheckHealthButton() {
+        var health: Boolean = false
+        var context = LocalContext.current
         Button(
             onClick = {
                 GlobalScope.launch(Dispatchers.IO) {
-                    try {
-                        val response = HealthApi.healthService.getHealth()
-                        if(response == true)
-v
-                        }
-                    catch (e: Exception) {
-                        // Handle network errors
+                    val response = HealthApi.healthService.getHealth()
+                    health = response
+                    withContext(Dispatchers.Main) {
+                        generateToast(health, context)
                     }
+                }
+
+
             }
+        )
+        {
+            Text("check health")
+        }
+    }
 
+    fun generateToast(health: Boolean, context: Context){
 
-
-
+        if(health == true) {
+            Toast.makeText(context, "Hähnchen mit Brocolli", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(context, "Big Mac", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     @Composable
     fun NavigateToLoginButton() {
@@ -91,24 +104,6 @@ v
         }
 
 
-
-        @Composable
-        fun Greeting(name: String, modifier: Modifier = Modifier) {
-            Surface {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-
-                }
-            }
-
-            Text(
-                text = "Hello $name!",
-                modifier = modifier
-            )
-        }
-
-
     }
 }
+
