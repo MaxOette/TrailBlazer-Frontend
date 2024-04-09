@@ -17,7 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import de.max.trailblazerfrontendv1.Api.AuthStatusApi
 import de.max.trailblazerfrontendv1.Api.HealthApi
+import de.max.trailblazerfrontendv1.Api.RefreshApi
+import de.max.trailblazerfrontendv1.Util.Constants
 //import dagger.hilt.android.AndroidEntryPoint
 import de.max.trailblazerfrontendv1.presentation.MapScreen
 import de.max.trailblazerfrontendv1.ui.theme.TrailBlazerFrontendV1Theme
@@ -39,6 +42,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavigateToLoginButton()
                     CheckHealthButton()
+                    RefreshButton()
+                    AuthButton()
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
@@ -60,6 +65,47 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    fun AuthButton(){
+        var context = LocalContext.current
+        Button(
+            onClick = {
+                GlobalScope.launch(Dispatchers.IO) {
+                    try {
+                        val response = AuthStatusApi.authStatusService.getAuthStatus()
+
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(context, response.string(), Toast.LENGTH_SHORT).show()
+                        }
+                    }catch(e: Exception){
+                        println("Exception during auth status request: ${e.message}")
+                    }
+                }
+            }
+        ){
+            Text("Check Auth Status")
+        }
+    }
+    @Composable
+    fun RefreshButton(){
+
+        Button(
+            onClick = {
+                GlobalScope.launch(Dispatchers.IO){
+                    try {
+                        val response = RefreshApi.refreshService.requestRefreshToken(Constants.refreshToken)
+                        //Constants.refreshToken = response.string()
+                    } catch (e: Exception) {
+                        // Handle any exceptions that occur during the refresh token request
+                        // The coroutineExceptionHandler will handle specific types of exceptions
+                        println("Exception during refresh token request: ${e.message}")
+                    }
+                }
+            }
+        ){
+            Text("request refresh Token")
+        }
+    }
     @Composable
     fun CheckHealthButton() {
         var health: Boolean = false

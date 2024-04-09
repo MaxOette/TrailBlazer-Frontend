@@ -49,7 +49,15 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import de.max.trailblazerfrontendv1.Api.LoginApi
+import de.max.trailblazerfrontendv1.Api.LoginUserData
+import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.MainActivity
+import de.max.trailblazerfrontendv1.Util.Constants
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -111,9 +119,23 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
 }
 
 fun checkCredentials(creds: Credentials, context: Context) {
-    if(creds.isNotEmpty() && creds.login == "admin"){
-        context.startActivity(Intent(context, MainActivity::class.java))
-        (context as Activity).finish()
+    if(creds.isNotEmpty()){
+        val loginUserData = LoginUserData (
+            email = creds.login,
+            password = creds.pwd
+        )
+        GlobalScope.launch(Dispatchers.IO) {
+            val response = LoginApi.loginService.postLoginUser(loginUserData)
+            Constants.refreshToken = response.refresh_token
+            Constants.accessToken = response.token
+            Constants.email = response.email
+
+            withContext(Dispatchers.Main) {
+                context.startActivity(Intent(context, MainActivity::class.java))
+                (context as Activity).finish()
+            }
+
+        }
     }else{
         Toast.makeText(context, "Wrong credentials", Toast.LENGTH_SHORT).show()
     }

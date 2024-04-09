@@ -10,3 +10,16 @@ data class RegisterUserData(
     val firstname: String,
     val lastname: String
 )
+
+data class LoginUserData(
+    val email: String,
+    val password: String
+)
+
+data class ActiveUserData(
+    val token: String,
+    val type: String,
+    val email: String,
+    val id: Int,
+    val refresh_token: String
+)
