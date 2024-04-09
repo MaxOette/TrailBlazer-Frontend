@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
             onClick = {
                 GlobalScope.launch(Dispatchers.IO){
                     try {
-                        val response = RefreshApi.refreshService.requestRefreshToken(Constants.refreshToken)
+                        val response = RefreshApi.refreshService.requestRefreshToken()
                         //Constants.refreshToken = response.string()
                     } catch (e: Exception) {
                         // Handle any exceptions that occur during the refresh token request

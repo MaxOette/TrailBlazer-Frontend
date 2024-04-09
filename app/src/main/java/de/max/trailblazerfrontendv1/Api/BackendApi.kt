@@ -38,8 +38,6 @@ interface LoginService{
 interface RefreshService{
     @POST("/api/v1/auth/token/refresh")
     suspend fun requestRefreshToken(
-        //@Header("Authorization") authorization: String,
-        @Body refreshToken: String
     ): ResponseBody
 }
 
@@ -104,7 +102,7 @@ class TokenInterceptor : Interceptor {
             .addHeader("Authorization", "Bearer ${Constants.accessToken}")
             .addHeader("content-type", "application/json")
             .addHeader("Connection","close")
-           // .addHeader("Refresh-Token", Constants.refreshToken)
+            .addHeader("refresh", Constants.refreshToken)
             .build()
         return chain.proceed(modifiedRequest)
     }
