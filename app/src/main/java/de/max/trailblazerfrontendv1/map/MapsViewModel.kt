@@ -1,4 +1,4 @@
-package de.max.trailblazerfrontendv1.presentation
+package de.max.trailblazerfrontendv1.map
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

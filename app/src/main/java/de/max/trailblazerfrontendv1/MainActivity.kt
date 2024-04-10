@@ -20,9 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import de.max.trailblazerfrontendv1.Api.AuthStatusApi
 import de.max.trailblazerfrontendv1.Api.HealthApi
 import de.max.trailblazerfrontendv1.Api.RefreshApi
-import de.max.trailblazerfrontendv1.Util.Constants
-//import dagger.hilt.android.AndroidEntryPoint
-import de.max.trailblazerfrontendv1.presentation.MapScreen
+import de.max.trailblazerfrontendv1.screens.MapScreen
+import de.max.trailblazerfrontendv1.navigation.AppNavigation
 import de.max.trailblazerfrontendv1.ui.theme.TrailBlazerFrontendV1Theme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -51,6 +50,8 @@ class MainActivity : ComponentActivity() {
                         MapScreen()
                     }
                 }
+                AppNavigation()
+
 
 //            TrailBlazerFrontendV1Theme {
 //                // A surface container using the 'background' color from the theme
@@ -148,7 +149,6 @@ class MainActivity : ComponentActivity() {
         ) {
             Text("Go to Login")
         }
-
 
     }
 }

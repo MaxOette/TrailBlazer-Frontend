@@ -1,21 +1,16 @@
-package de.max.trailblazerfrontendv1.presentation
+package de.max.trailblazerfrontendv1.screens
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.GroundOverlay
-import com.google.maps.android.compose.GroundOverlayPosition
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
-import de.max.trailblazerfrontendv1.R
+import de.max.trailblazerfrontendv1.map.MapsViewModel
 
 @Composable
 fun MapScreen(

@@ -1,4 +1,4 @@
-package de.max.trailblazerfrontendv1.presentation
+package de.max.trailblazerfrontendv1.map
 
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
