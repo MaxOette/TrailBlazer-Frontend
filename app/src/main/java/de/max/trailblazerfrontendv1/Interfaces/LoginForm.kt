@@ -125,14 +125,22 @@ fun checkCredentials(creds: Credentials, context: Context) {
             password = creds.pwd
         )
         GlobalScope.launch(Dispatchers.IO) {
-            val response = LoginApi.loginService.postLoginUser(loginUserData)
-            Constants.refreshToken = response.refresh_token
-            Constants.accessToken = response.token
-            Constants.email = response.email
+            try {
+                val response = LoginApi.loginService.postLoginUser(loginUserData)
+                Constants.refreshToken = response.refresh_token
+                Constants.accessToken = response.token
+                Constants.email = response.email
 
-            withContext(Dispatchers.Main) {
-                context.startActivity(Intent(context, MainActivity::class.java))
-                (context as Activity).finish()
+                withContext(Dispatchers.Main) {
+                    context.startActivity(Intent(context, MainActivity::class.java))
+                    (context as Activity).finish()
+                }
+            }catch(e: Exception){
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Error occured: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
+                }
+                println("error occured during login ${e.message}")
             }
 
         }
