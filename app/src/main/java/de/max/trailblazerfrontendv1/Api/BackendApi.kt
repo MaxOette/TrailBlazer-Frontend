@@ -46,6 +46,24 @@ interface AuthStatusService{
     suspend fun getAuthStatus(): ResponseBody
 }
 
+interface LogoutService{
+    @POST("/api/v1/auth/logout")
+    suspend fun logout()
+}
+
+object LogoutAPI{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(LogoutAPI.httpClient)
+        .build()
+    val logoutService: LogoutService = retrofit.create(LogoutService::class.java)
+}
+
 object AuthStatusApi {
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
