@@ -53,7 +53,7 @@ import de.max.trailblazerfrontendv1.Api.LoginApi
 import de.max.trailblazerfrontendv1.Api.LoginUserData
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.MainActivity
-import de.max.trailblazerfrontendv1.Util.Constants
+import de.max.trailblazerfrontendv1.Util.UserConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -127,9 +127,9 @@ fun checkCredentials(creds: Credentials, context: Context) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val response = LoginApi.loginService.postLoginUser(loginUserData)
-                Constants.refreshToken = response.refresh_token
-                Constants.accessToken = response.token
-                Constants.email = response.email
+                UserConstants.refreshToken = response.refresh_token
+                UserConstants.accessToken = response.token
+                UserConstants.email = response.email
 
                 withContext(Dispatchers.Main) {
                     context.startActivity(Intent(context, MainActivity::class.java))

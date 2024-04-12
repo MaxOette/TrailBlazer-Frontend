@@ -42,7 +42,7 @@ class LocationService : Service() {
     }
 
     private fun start() {
-        val gpsNotification = NotificationCompat.Builder(this, "lacation")
+        val gpsNotification = NotificationCompat.Builder(this, "location")
             .setContentTitle(MessageStrings.gpsNotificationTitle)
             .setContentText(MessageStrings.gpsNotificationText)
             .setSmallIcon(R.drawable.ic_launcher_background)

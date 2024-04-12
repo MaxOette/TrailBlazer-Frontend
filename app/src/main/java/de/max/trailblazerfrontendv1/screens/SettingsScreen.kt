@@ -1,5 +1,6 @@
 package de.max.trailblazerfrontendv1.screens
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +11,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import de.max.trailblazerfrontendv1.location.LocationService
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(applicationContext: Context) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -25,20 +28,21 @@ fun SettingsScreen() {
             Text(
                 text = "Settings Screen"
             )
-            Button(onClick = { Intent(applicationContext, LocationService::class.java).apply {
+
+            Button(onClick = { Intent(context, LocationService::class.java).apply {
                 action = LocationService.ACTION_START
-                startService(this)
+                context.startService(this)
                 }
             }) {
                 Text(text = "Start GPS Tracking")
             }
             Spacer(modifier = Modifier.height(height = 16.dp))
-            Button(onClick = { Intent(applicationContext, LocationService::class.java).apply {
-                action = LocationService.ACTION_START
-                startService(this)
+            Button(onClick = { Intent(context, LocationService::class.java).apply {
+                action = LocationService.ACTION_STOP
+                context.startService(this)
                 }
             } ) {
-                Text(text = "Start GPS Tracking")
+                Text(text = "Stop GPS Tracking")
             }
         }
 

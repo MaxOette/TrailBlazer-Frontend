@@ -1,5 +1,6 @@
 package de.max.trailblazerfrontendv1.navigation
 
+import android.content.Context
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -17,11 +18,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.max.trailblazerfrontendv1.screens.MapScreen
 import de.max.trailblazerfrontendv1.screens.ProfileScreen
+import de.max.trailblazerfrontendv1.screens.Screens
 import de.max.trailblazerfrontendv1.screens.SettingsScreen
 import de.max.trailblazerfrontendv1.screens.StatsScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(applicationContext: Context) {
     val navController = rememberNavController()
 
     Scaffold(
@@ -69,7 +71,7 @@ fun AppNavigation() {
                 ProfileScreen()
             }
             composable(route = Screens.SettingsScreen.name) {
-                SettingsScreen()
+                SettingsScreen(applicationContext)
             }
         }
     }

@@ -1,4 +1,4 @@
-package de.max.trailblazerfrontendv1.navigation
+package de.max.trailblazerfrontendv1.screens
 
 enum class Screens {
     MapScreen,

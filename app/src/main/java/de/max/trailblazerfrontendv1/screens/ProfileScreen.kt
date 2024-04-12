@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.MainActivity
-import de.max.trailblazerfrontendv1.Util.Constants
+import de.max.trailblazerfrontendv1.Util.UserConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -40,9 +40,9 @@ fun LogoutButton(){
                 GlobalScope.launch(Dispatchers.IO) {
                     LogoutAPI.logoutService.logout()
 
-                    Constants.accessToken = ""
-                    Constants.refreshToken = ""
-                    Constants.email = ""
+                    UserConstants.accessToken = ""
+                    UserConstants.refreshToken = ""
+                    UserConstants.email = ""
 
                     withContext(Dispatchers.Main) {
                         context.startActivity(Intent(context, LoginActivity::class.java))

@@ -1,6 +1,6 @@
 package de.max.trailblazerfrontendv1.Util
 
- class Constants {
+ class UserConstants {
      companion object {
          var refreshToken: String = ""
          var accessToken: String = ""

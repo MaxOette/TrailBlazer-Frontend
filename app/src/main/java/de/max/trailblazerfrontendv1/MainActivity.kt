@@ -28,6 +28,7 @@ import androidx.core.app.ActivityCompat
 import de.max.trailblazerfrontendv1.Api.AuthStatusApi
 import de.max.trailblazerfrontendv1.Api.HealthApi
 import de.max.trailblazerfrontendv1.Api.RefreshApi
+import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.location.LocationService
 import de.max.trailblazerfrontendv1.screens.MapScreen
 import de.max.trailblazerfrontendv1.navigation.AppNavigation
@@ -42,15 +43,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "location",
-                "Location",
-                NotificationManager.IMPORTANCE_LOW
-            )
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
+
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
@@ -76,8 +69,9 @@ class MainActivity : ComponentActivity() {
                     ) {
                         MapScreen()
                     }
+
                 }
-                AppNavigation()
+                AppNavigation(applicationContext)
 
 
 //            TrailBlazerFrontendV1Theme {
@@ -122,7 +116,8 @@ class MainActivity : ComponentActivity() {
                 GlobalScope.launch(Dispatchers.IO){
                     try {
                         val response = RefreshApi.refreshService.requestRefreshToken()
-                        //Constants.refreshToken = response.string()
+                        UserConstants.refreshToken = response.string()
+
                     } catch (e: Exception) {
                         // Handle any exceptions that occur during the refresh token request
                         // The coroutineExceptionHandler will handle specific types of exceptions

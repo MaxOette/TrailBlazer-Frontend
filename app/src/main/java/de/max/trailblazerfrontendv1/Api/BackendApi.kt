@@ -1,6 +1,6 @@
 package de.max.trailblazerfrontendv1.Api
 
-import de.max.trailblazerfrontendv1.Util.Constants
+import de.max.trailblazerfrontendv1.Util.UserConstants
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
@@ -117,10 +117,10 @@ class TokenInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
         val modifiedRequest = originalRequest.newBuilder()
-            .addHeader("Authorization", "Bearer ${Constants.accessToken}")
+            .addHeader("Authorization", "Bearer ${UserConstants.accessToken}")
             .addHeader("content-type", "application/json")
             .addHeader("Connection","close")
-            .addHeader("refresh", Constants.refreshToken)
+            .addHeader("refresh", UserConstants.refreshToken)
             .build()
         return chain.proceed(modifiedRequest)
     }

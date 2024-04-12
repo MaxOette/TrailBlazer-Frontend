@@ -41,6 +41,7 @@ class DefaultLocationClient(
                     super.onLocationResult(result)
                     result.locations.lastOrNull()?.let {location ->
                         launch {send(location)}
+                        println(location)
                     }
                 }
             }
