@@ -1,14 +1,20 @@
 package de.max.trailblazerfrontendv1
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -17,9 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import de.max.trailblazerfrontendv1.Api.AuthStatusApi
 import de.max.trailblazerfrontendv1.Api.HealthApi
 import de.max.trailblazerfrontendv1.Api.RefreshApi
+import de.max.trailblazerfrontendv1.location.LocationService
 import de.max.trailblazerfrontendv1.screens.MapScreen
 import de.max.trailblazerfrontendv1.navigation.AppNavigation
 import de.max.trailblazerfrontendv1.ui.theme.TrailBlazerFrontendV1Theme
@@ -32,6 +41,24 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "location",
+                "Location",
+                NotificationManager.IMPORTANCE_LOW
+            )
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            0
+        )
         setContent {
             TrailBlazerFrontendV1Theme {
                 Column(
