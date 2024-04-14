@@ -9,6 +9,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -34,7 +35,11 @@ class DefaultLocationClient(
                 throw LocationClient.LocationException("GPS is disabled")
             }
 
-            val request = LocationRequest.Builder(15000L).build()
+            val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 15000L)
+                .setWaitForAccurateLocation(false)
+                .setMinUpdateIntervalMillis(2000L)
+                .setMaxUpdateDelayMillis(15000L)
+                .build()
 
             val locationCallback = object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult) {
@@ -42,6 +47,8 @@ class DefaultLocationClient(
                     result.locations.lastOrNull()?.let {location ->
                         launch {send(location)}
                         println(location)
+                        println(result.locations.size)
+                        result.locations.removeAt(0)
                     }
                 }
             }

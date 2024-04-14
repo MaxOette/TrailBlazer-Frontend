@@ -29,17 +29,17 @@ fun SettingsScreen(applicationContext: Context) {
                 text = "Settings Screen"
             )
 
-            Button(onClick = { Intent(context, LocationService::class.java).apply {
+            Button(onClick = { Intent(applicationContext, LocationService::class.java).apply {
                 action = LocationService.ACTION_START
-                context.startService(this)
+                applicationContext.startService(this)
                 }
             }) {
                 Text(text = "Start GPS Tracking")
             }
             Spacer(modifier = Modifier.height(height = 16.dp))
-            Button(onClick = { Intent(context, LocationService::class.java).apply {
+            Button(onClick = { Intent(applicationContext, LocationService::class.java).apply {
                 action = LocationService.ACTION_STOP
-                context.startService(this)
+                applicationContext.startService(this)
                 }
             } ) {
                 Text(text = "Stop GPS Tracking")
