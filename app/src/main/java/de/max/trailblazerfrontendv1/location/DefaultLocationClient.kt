@@ -10,6 +10,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
+import de.max.trailblazerfrontendv1.Util.UserConstants
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -37,7 +38,7 @@ class DefaultLocationClient(
 
             val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 15000L)
                 .setWaitForAccurateLocation(false)
-                .setMinUpdateIntervalMillis(2000L)
+                .setMinUpdateIntervalMillis(15000L)
                 .setMaxUpdateDelayMillis(15000L)
                 .build()
 
@@ -48,7 +49,8 @@ class DefaultLocationClient(
                         launch {send(location)}
                         println(location)
                         println(result.locations.size)
-                        result.locations.removeAt(0)
+                        UserConstants.userLat = location.latitude
+                        UserConstants.userLng = location.longitude
                     }
                 }
             }

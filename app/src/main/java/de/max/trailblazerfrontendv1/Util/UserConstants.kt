@@ -5,6 +5,8 @@ package de.max.trailblazerfrontendv1.Util
          var refreshToken: String = ""
          var accessToken: String = ""
          var email: String = ""
+         var userLat: Double = 48.8092627
+         var userLng: Double = 8.9775588
 
 //         fun getRefreshToken(): String{
 //             return refreshToken

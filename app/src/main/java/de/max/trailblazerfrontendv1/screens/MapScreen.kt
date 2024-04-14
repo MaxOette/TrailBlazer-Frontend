@@ -5,16 +5,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
+import com.google.maps.android.compose.rememberCameraPositionState
+import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.map.MapsViewModel
 
 @Composable
 fun MapScreen(
-    viewModel: MapsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: MapsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
 
     val smallPolygonLocations = listOf(
@@ -62,18 +65,22 @@ fun MapScreen(
 
     val holeList = listOf(
         smallPolygonLocations
-        )
+    )
 
 
     val uiSettings = remember {
-        MapUiSettings(zoomControlsEnabled = true)
+        MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = true)
     }
+
+    val cameraPosition = CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 14f)
+    val cameraPositionState = rememberCameraPositionState { position = cameraPosition }
+
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         properties = viewModel.state.properties,
-        uiSettings = uiSettings
+        uiSettings = uiSettings,
+        cameraPositionState = cameraPositionState
     ) {
-
         Polygon(
             points = germanyLocations,
             clickable = false,

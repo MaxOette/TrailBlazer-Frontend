@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         ActivityCompat.requestPermissions(
             this,
             arrayOf(
@@ -52,6 +51,12 @@ class MainActivity : ComponentActivity() {
             ),
             0
         )
+
+        Intent(applicationContext, LocationService::class.java).apply {
+            action = LocationService.ACTION_START
+            applicationContext.startService(this)
+        }
+
         setContent {
             TrailBlazerFrontendV1Theme {
                 Column(
