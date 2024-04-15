@@ -105,6 +105,13 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
             ) {
                 Text("login")
             }
+            Button(
+                onClick = { adminLogin(context)},
+                shape = RoundedCornerShape(5.dp),
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text("Admin login")
+            }
             Text(
                 text = "Don't have an account? Register here",
                 modifier = Modifier
@@ -117,6 +124,33 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
 
     }
 }
+
+fun adminLogin(context: Context){
+    val loginUserData = LoginUserData (
+        email = "email@email.de",
+        password = "password123"
+    )
+    GlobalScope.launch(Dispatchers.IO) {
+        try {
+            val response = LoginApi.loginService.postLoginUser(loginUserData)
+            UserConstants.refreshToken = response.refresh_token
+            UserConstants.accessToken = response.token
+            UserConstants.email = response.email
+
+            withContext(Dispatchers.Main) {
+                context.startActivity(Intent(context, MainActivity::class.java))
+                (context as Activity).finish()
+            }
+        } catch (e: Exception) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Error occured: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            println("error occured during login ${e.message}")
+        }
+    }
+}
+
 
 fun checkCredentials(creds: Credentials, context: Context) {
     if(creds.isNotEmpty()){

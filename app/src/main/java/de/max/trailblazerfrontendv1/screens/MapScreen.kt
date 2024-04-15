@@ -81,6 +81,7 @@ fun MapScreen(
         uiSettings = uiSettings,
         cameraPositionState = cameraPositionState
     ) {
+
         Polygon(
             points = germanyLocations,
             clickable = false,
