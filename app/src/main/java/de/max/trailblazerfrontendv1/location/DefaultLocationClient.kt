@@ -54,6 +54,7 @@ class DefaultLocationClient(
                         UserConstants.userLat = location.latitude
                         UserConstants.userLng = location.longitude
                         UserConstants.cameraPosition = CameraPosition.fromLatLngZoom(LatLng(location.latitude, location.longitude), 14f)
+                        println("UserConstants gesetzt!")
                     }
                 }
             }

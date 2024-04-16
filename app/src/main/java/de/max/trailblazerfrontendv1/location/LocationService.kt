@@ -7,8 +7,11 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.MessageStrings
+import de.max.trailblazerfrontendv1.Util.UserConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

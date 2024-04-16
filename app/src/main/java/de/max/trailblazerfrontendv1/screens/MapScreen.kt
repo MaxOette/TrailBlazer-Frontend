@@ -72,8 +72,9 @@ fun MapScreen(
         MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = true)
     }
 
-    val cameraPosition = CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 14f)
+    //val cameraPosition = CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 14f)
     val cameraPositionState = rememberCameraPositionState { position = UserConstants.cameraPosition }
+    //val cameraPositionState = viewModel.cameraPosition
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
