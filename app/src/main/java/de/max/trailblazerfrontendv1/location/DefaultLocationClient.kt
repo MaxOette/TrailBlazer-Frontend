@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
+import androidx.compose.runtime.Composable
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -13,14 +14,17 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.Util.UserConstants
+import de.max.trailblazerfrontendv1.map.MapsViewModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
+
 class DefaultLocationClient(
     private val context: Context,
-    private val client: FusedLocationProviderClient
+    private val client: FusedLocationProviderClient,
+    private val cameraPositionUpdater: CameraPositionUpdater
 ): LocationClient {
 
     @SuppressLint("MissingPermission")
@@ -49,12 +53,12 @@ class DefaultLocationClient(
                     super.onLocationResult(result)
                     result.locations.lastOrNull()?.let {location ->
                         launch {send(location)}
-                        println(location)
-                        println(result.locations.size)
                         UserConstants.userLat = location.latitude
                         UserConstants.userLng = location.longitude
-                        UserConstants.cameraPosition = CameraPosition.fromLatLngZoom(LatLng(location.latitude, location.longitude), 14f)
-                        println("UserConstants gesetzt!")
+                        cameraPositionUpdater.updateCameraPosition(
+                            CameraPosition.fromLatLngZoom(LatLng(location.latitude, location.longitude), 14f)
+                        )
+                        println("[GPS-Position-Callback]: UserConstants gesetzt und CamPosUpdater informiert!")
                     }
                 }
             }

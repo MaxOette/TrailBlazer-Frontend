@@ -7,22 +7,22 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.Util.UserConstants
+import de.max.trailblazerfrontendv1.location.CameraPositionUpdater
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-/**
- * Hier würde man z.B. den JSON Style der Karte ändern
- */
-class MapsViewModel : ViewModel() {
+class MapsViewModel : ViewModel(), CameraPositionUpdater {
 
     var state by mutableStateOf(MapState())
 
-    var cameraPosition = mutableStateOf(CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 14f))
+    private val _cameraPosition = MutableStateFlow(
+        CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 14f)
+    )
+    val cameraPosition: StateFlow<CameraPosition> = _cameraPosition.asStateFlow()
 
-    // MutableState for camera position
-    //val cameraPositionState = mutableStateOf(UserConstants.cameraPosition)
-
-    // Update camera position when UserConstants.cameraPosition changes
-    fun updateCameraPosition(newPosition: CameraPosition) {
-        cameraPosition.value = newPosition
+    override fun updateCameraPosition(newPosition: CameraPosition) {
+        _cameraPosition.value = newPosition
     }
 
 }

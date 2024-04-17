@@ -7,11 +7,9 @@ import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.MessageStrings
-import de.max.trailblazerfrontendv1.Util.UserConstants
+import de.max.trailblazerfrontendv1.Util.ViewModelHolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -23,6 +21,7 @@ import kotlinx.coroutines.flow.onEach
 class LocationService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var locationClient: LocationClient
+    private lateinit var cameraPositionUpdater: CameraPositionUpdater
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -30,9 +29,11 @@ class LocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        cameraPositionUpdater = ViewModelHolder.ViewModelHolderObject.mapsViewModel
         locationClient = DefaultLocationClient(
             applicationContext,
-            LocationServices.getFusedLocationProviderClient(applicationContext)
+            LocationServices.getFusedLocationProviderClient(applicationContext),
+            cameraPositionUpdater
         )
     }
 
