@@ -49,7 +49,12 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Checkbox
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.max.trailblazerfrontendv1.Api.RegisterApi
 import de.max.trailblazerfrontendv1.Api.RegisterUserData
 import de.max.trailblazerfrontendv1.LoginActivity
@@ -69,52 +74,76 @@ fun RegisterForm(onLoginClicked: () -> Unit) {
         }
         val context = LocalContext.current
 
+        Text(
+            text = "Registrieren",
+            modifier = Modifier
+                .padding(all = 30.dp)
+                .padding(top = 70.dp),
+            fontWeight = FontWeight.Bold,
+            fontSize = 36.sp
+        )
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
+
         ) {
-
-            EmailField(
-                value = credentials.email,
-                onChange = { data -> credentials = credentials.copy(email = data) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            RegisterFirstNameField(
-                value = credentials.firstName,
-                onChange = { data -> credentials = credentials.copy(firstName = data) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            RegisterLastNameField(
-                value = credentials.lastName,
-                onChange = { data -> credentials = credentials.copy(lastName = data) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            RegisterPasswordField(
-                value = credentials.pwd,
-                onChange = { data -> credentials = credentials.copy(pwd = data) },
-                submit = { checkRegisterCredentials(credentials, context) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Button(
-                onClick = { checkRegisterCredentials(credentials, context) },
-                enabled = credentials.isNotEmpty(),
-                shape = RoundedCornerShape(5.dp),
-                modifier = Modifier.fillMaxWidth()
+            Column (
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
-                Text("register")
+
+                EmailField(
+                    value = credentials.email,
+                    onChange = { data -> credentials = credentials.copy(email = data) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                RegisterFirstNameField(
+                    value = credentials.firstName,
+                    onChange = { data -> credentials = credentials.copy(firstName = data) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                RegisterLastNameField(
+                    value = credentials.lastName,
+                    onChange = { data -> credentials = credentials.copy(lastName = data) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                RegisterPasswordField(
+                    value = credentials.pwd,
+                    onChange = { data -> credentials = credentials.copy(pwd = data) },
+                    submit = { checkRegisterCredentials(credentials, context) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(28.dp))
+                Button(
+                    onClick = { checkRegisterCredentials(credentials, context) },
+                    enabled = credentials.isNotEmpty(),
+                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Registrieren")
+                }
             }
             Text(
-                text = "Already have an account? click here",
+                text = buildAnnotatedString {
+                    append("Du hast schon einen Account? ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append("Anmelden")
+                    }
+                },
                 modifier = Modifier
                     .clickable { onLoginClicked() }
-                    .padding(8.dp),
-                //style = MaterialTheme.typography.body1,
-                //color = MaterialTheme.colors.primary
+                    .padding(8.dp)
+                    .padding(bottom = 16.dp)
+
             )
         }
 
@@ -184,8 +213,8 @@ fun EmailField(
     value: String,
     onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "Email",
-    placeholder: String = "Enter your Email"
+    label: String = "E-Mail",
+    placeholder: String = "Gib Deine E-Mail-Adresse ein"
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -206,7 +235,7 @@ fun EmailField(
         keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) }
         ),
-        placeholder = { Text(placeholder) },
+        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = VisualTransformation.None
@@ -219,15 +248,15 @@ fun RegisterPasswordField(
     onChange: (String) -> Unit,
     submit: () -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "Password",
-    placeholder: String = "Enter your Password"
+    label: String = "Passwort",
+    placeholder: String = "Wähle ein sicheres Passwort"
 ) {
 
     var isPasswordVisible by remember { mutableStateOf(false) }
 
     val leadingIcon = @Composable {
         Icon(
-            Icons.Default.Key,
+            Icons.Default.Lock,
             contentDescription = "",
             tint = MaterialTheme.colorScheme.primary
         )
@@ -257,7 +286,7 @@ fun RegisterPasswordField(
         keyboardActions = KeyboardActions(
             onDone = { submit }
         ),
-        placeholder = { Text(placeholder) },
+        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
@@ -269,8 +298,8 @@ fun RegisterFirstNameField(
     value: String,
     onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "first name",
-    placeholder: String = "Enter your first name"
+    label: String = "Vorname",
+    placeholder: String = "Gib Deinen Vornamen ein"
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -291,7 +320,7 @@ fun RegisterFirstNameField(
         keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) }
         ),
-        placeholder = { Text(placeholder) },
+        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = VisualTransformation.None
@@ -303,8 +332,8 @@ fun RegisterLastNameField(
     value: String,
     onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    label: String = "last name",
-    placeholder: String = "Enter your last name"
+    label: String = "Nachname",
+    placeholder: String = "Gib Deinen Nachnamen ein"
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -325,7 +354,7 @@ fun RegisterLastNameField(
         keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) }
         ),
-        placeholder = { Text(placeholder) },
+        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = VisualTransformation.None

@@ -12,7 +12,9 @@ import androidx.compose.ui.platform.LocalContext
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.MainActivity
+import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
+import de.max.trailblazerfrontendv1.location.LocationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -39,7 +41,10 @@ fun LogoutButton(){
             try {
                 GlobalScope.launch(Dispatchers.IO) {
                     LogoutAPI.logoutService.logout()
-
+                    Intent(GeneralConstants.applicationContext, LocationService::class.java).apply {
+                        action = LocationService.ACTION_STOP
+                        GeneralConstants.applicationContext.startService(this)
+                    }
                     UserConstants.accessToken = ""
                     UserConstants.refreshToken = ""
                     UserConstants.email = ""

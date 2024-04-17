@@ -49,7 +49,7 @@ class LocationService : Service() {
         val gpsNotification = NotificationCompat.Builder(this, "location")
             .setContentTitle(MessageStrings.gpsNotificationTitle)
             .setContentText(MessageStrings.gpsNotificationText)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.trail_blazer_app_icon_32)
             .setOngoing(true)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -60,7 +60,7 @@ class LocationService : Service() {
                 val lat = location.latitude.toString()
                 val lng = location.longitude.toString()
                 val updatedNotification = gpsNotification.setContentText(
-                    MessageStrings.gpsNotificationText + "\n" + "Location: ($lat, $lng)"
+                    MessageStrings.gpsNotificationText + "($lat, $lng)"
                 )
                 notificationManager.notify(1, updatedNotification.build())
             }

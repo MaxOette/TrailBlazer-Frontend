@@ -2,8 +2,8 @@ package de.max.trailblazerfrontendv1.Util
 
 class MessageStrings {
     companion object {
-        val gpsNotificationTitle = "TrailBlazer"
-        val gpsNotificationText = "Deine GPS-Location wird gerade abgerufen."
+        val gpsNotificationTitle = "GPS-Tracking aktiv"
+        val gpsNotificationText = "Dein Standort: "
 
     }
 }
