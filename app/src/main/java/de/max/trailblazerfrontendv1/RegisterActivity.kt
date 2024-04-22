@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import de.max.trailblazerfrontendv1.Interfaces.RegisterForm
@@ -17,7 +18,7 @@ class RegisterActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            TrailBlazerFrontendV1Theme {
+            TrailBlazerFrontendV1Theme(isSystemInDarkTheme()) {
                 RegisterForm(onLoginClicked = { navigateToLoginActivity() })
             }
         }

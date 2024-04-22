@@ -32,6 +32,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -91,13 +96,13 @@ fun SettingsScreen(applicationContext: Context) {
             Text(
                 text = "App-Einstellungen",
             )
-            AppSettingsCard()
+            AppSettingsCard(applicationContext)
 
             Spacer(modifier = Modifier.height(28.dp))
             Text(
                 text = "Karteneinstellungen",
             )
-            AppSettingsCard()
+            //AppSettingsCard(applicationContext)
         }
 
 
@@ -136,7 +141,7 @@ fun StopTrackingButton(modifier: Modifier, applicationContext: Context) {
 }
 
 @Composable
-fun AppSettingsCard() {
+fun AppSettingsCard(applicationContext: Context) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -164,12 +169,7 @@ fun AppSettingsCard() {
                 )
                 Text(text = "GPS-Tracking", modifier = Modifier.padding(start = 8.dp))
             }
-            Switch(
-                checked = true,
-                onCheckedChange = {
-                    //checked = it
-                }
-            )
+            GPSTrackingSwitch(applicationContext)
         }
 
         Row(
@@ -185,14 +185,50 @@ fun AppSettingsCard() {
                     contentDescription = "",
                     tint = MaterialTheme.colorScheme.primary
                 )
-                Text(text = "Darkmode", modifier = Modifier.padding(start = 8.dp))
+                Text(text = "Darkmode erzwingen", modifier = Modifier.padding(start = 8.dp))
             }
-            Switch(
-                checked = false,
-                onCheckedChange = {
-                    //checked = it
-                }
-            )
+            DarkModeSwitch(applicationContext)
         }
     }
+}
+
+@Composable
+fun GPSTrackingSwitch(applicationContext: Context) {
+    var checked by remember { mutableStateOf(true) }
+
+    Switch(
+        checked = checked,
+        onCheckedChange = {
+            checked = it
+            if (it) {
+                Intent(applicationContext, LocationService::class.java).apply {
+                    action = LocationService.ACTION_START
+                    applicationContext.startService(this)
+                }
+            } else {
+                Intent(applicationContext, LocationService::class.java).apply {
+                    action = LocationService.ACTION_STOP
+                    applicationContext.startService(this)
+                }
+            }
+        },
+    )
+}
+
+@Composable
+fun DarkModeSwitch(applicationContext: Context) {
+    var darkMode by remember { mutableStateOf(false) }
+    var darkModeEnabled by rememberSaveable { mutableStateOf(false) }
+
+    Switch(
+        checked = darkModeEnabled,
+        onCheckedChange = {
+            darkModeEnabled = it
+            if (it) {
+                GeneralConstants.forceDarkMode = true
+            } else {
+                GeneralConstants.forceDarkMode = false
+            }
+        },
+    )
 }

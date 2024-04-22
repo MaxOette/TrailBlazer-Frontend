@@ -21,7 +21,8 @@ import androidx.core.view.WindowCompat
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryDark,
     secondary = SecondaryDark,
-    tertiary = TertiaryDark
+    tertiary = TertiaryDark,
+    onPrimary = OnPrimaryDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -42,7 +43,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun TrailBlazerFrontendV1Theme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit

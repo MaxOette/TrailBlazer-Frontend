@@ -8,6 +8,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.LocationServices
 import de.max.trailblazerfrontendv1.R
+import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.MessageStrings
 import de.max.trailblazerfrontendv1.Util.ViewModelHolder
 import kotlinx.coroutines.CoroutineScope
@@ -46,6 +47,7 @@ class LocationService : Service() {
     }
 
     private fun start() {
+        GeneralConstants.fetchingGps = true
         val gpsNotification = NotificationCompat.Builder(this, "location")
             .setContentTitle(MessageStrings.gpsNotificationTitle)
             .setContentText(MessageStrings.gpsNotificationText)
@@ -69,6 +71,7 @@ class LocationService : Service() {
     }
 
     private fun stop() {
+        GeneralConstants.fetchingGps = false
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             stopForeground(STOP_FOREGROUND_DETACH)
         } else {

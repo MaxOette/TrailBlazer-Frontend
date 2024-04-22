@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.ViewCompat
@@ -18,7 +19,7 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            TrailBlazerFrontendV1Theme {
+            TrailBlazerFrontendV1Theme(isSystemInDarkTheme()) {
                 LoginForm(onRegisterClicked = { navigateToRegisterActivity() })
             }
         }
@@ -32,7 +33,7 @@ class LoginActivity : ComponentActivity() {
 @Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
 @Composable
 fun LoginPreview() {
-    TrailBlazerFrontendV1Theme {
+    TrailBlazerFrontendV1Theme(isSystemInDarkTheme()) {
         LoginForm(onRegisterClicked = { })
     }
 }
