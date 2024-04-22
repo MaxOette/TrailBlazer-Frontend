@@ -10,6 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import de.max.trailblazerfrontendv1.Interfaces.RegisterForm
+import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.ui.theme.TrailBlazerFrontendV1Theme
 
 class RegisterActivity : ComponentActivity() {
@@ -18,7 +19,7 @@ class RegisterActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            TrailBlazerFrontendV1Theme(isSystemInDarkTheme()) {
+            TrailBlazerFrontendV1Theme(isSystemInDarkTheme() || GeneralConstants.forceDarkMode) {
                 RegisterForm(onLoginClicked = { navigateToLoginActivity() })
             }
         }

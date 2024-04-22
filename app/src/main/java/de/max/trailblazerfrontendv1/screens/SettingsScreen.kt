@@ -3,6 +3,7 @@ package de.max.trailblazerfrontendv1.screens
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.recreate
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.R
@@ -194,7 +196,7 @@ fun AppSettingsCard(applicationContext: Context) {
 
 @Composable
 fun GPSTrackingSwitch(applicationContext: Context) {
-    var checked by remember { mutableStateOf(true) }
+    var checked by remember { mutableStateOf(GeneralConstants.fetchingGps) }
 
     Switch(
         checked = checked,
@@ -217,8 +219,7 @@ fun GPSTrackingSwitch(applicationContext: Context) {
 
 @Composable
 fun DarkModeSwitch(applicationContext: Context) {
-    var darkMode by remember { mutableStateOf(false) }
-    var darkModeEnabled by rememberSaveable { mutableStateOf(false) }
+    var darkModeEnabled by rememberSaveable { mutableStateOf(GeneralConstants.forceDarkMode) }
 
     Switch(
         checked = darkModeEnabled,

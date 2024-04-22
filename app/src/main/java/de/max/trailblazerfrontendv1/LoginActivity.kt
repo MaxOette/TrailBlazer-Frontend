@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import de.max.trailblazerfrontendv1.Interfaces.LoginForm
+import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.ui.theme.TrailBlazerFrontendV1Theme
 
 class LoginActivity : ComponentActivity() {
@@ -19,7 +20,7 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            TrailBlazerFrontendV1Theme(isSystemInDarkTheme()) {
+            TrailBlazerFrontendV1Theme(isSystemInDarkTheme() || GeneralConstants.forceDarkMode) {
                 LoginForm(onRegisterClicked = { navigateToRegisterActivity() })
             }
         }
@@ -33,7 +34,7 @@ class LoginActivity : ComponentActivity() {
 @Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
 @Composable
 fun LoginPreview() {
-    TrailBlazerFrontendV1Theme(isSystemInDarkTheme()) {
+    TrailBlazerFrontendV1Theme(isSystemInDarkTheme() || GeneralConstants.forceDarkMode) {
         LoginForm(onRegisterClicked = { })
     }
 }
