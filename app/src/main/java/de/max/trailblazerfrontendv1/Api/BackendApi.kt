@@ -52,8 +52,8 @@ interface LogoutService{
 }
 
 interface TileService{
-    @GET("/api/v1/locations")
-    suspend fun getTiles() : TileData
+    @GET("/api/v1/locations?latitude=49.2086&longitude=10.1713&zoomLevel=14")
+    suspend fun getTiles() : List<TileData>
 }
 
 object TileApi{

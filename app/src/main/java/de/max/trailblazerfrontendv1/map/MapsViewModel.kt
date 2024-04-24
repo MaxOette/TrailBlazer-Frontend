@@ -17,7 +17,7 @@ class MapsViewModel : ViewModel(), CameraPositionUpdater {
     var state by mutableStateOf(MapState())
 
     private val _cameraPosition = MutableStateFlow(
-        CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 14f)
+        CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 6f)
     )
     val cameraPosition: StateFlow<CameraPosition> = _cameraPosition.asStateFlow()
 

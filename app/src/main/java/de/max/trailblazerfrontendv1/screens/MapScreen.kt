@@ -8,13 +8,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.GroundOverlay
+import com.google.maps.android.compose.GroundOverlayPosition
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
+import de.max.trailblazerfrontendv1.Api.TileData
+import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.Util.ViewModelHolder
@@ -36,12 +42,15 @@ fun MapScreen(
         GeneralConstants.fetchingGps = true;
     }
 
-    val smallPolygonLocations = listOf(
-        LatLng(48.7787391, 8.8475872), //südwest: links von Stuttgart @48.7787391,8.8475872
-        LatLng(49.4494176, 11.0743533), //südost: Nbg Lorenzkirche @49.4494176,11.0743533
-        LatLng(49.5468979, 10.7137187), //nordost: Rewe Emskirchen @49.5468979,10.7137187
-        LatLng(50.0986972,8.4835624)  //nordwest: Frankfurt Airport @50.0986972,8.4835624
-    )
+    val smallPolygonLocations : MutableList<TileData> = mutableListOf()
+
+    val visitedList = UserConstants.testTileData.filter{ (it.oppacity == 0) }
+        .map { listOf(
+            LatLng(it.posUpperRight[0], it.posUpperRight[1]),
+            LatLng(it.posLowerRight[0], it.posLowerRight[1]),
+            LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
+            LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
+            ) }
 
     val germanyLocations = listOf(
         LatLng(47.270111, 5.86633), //südwest
@@ -60,7 +69,7 @@ fun MapScreen(
     }
 
     val cameraPosition = rememberCameraPositionState {
-        CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 14f)
+        CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), GeneralConstants.defaultZoom)
     }
 
     LaunchedEffect(Unit) {
@@ -76,12 +85,13 @@ fun MapScreen(
         cameraPositionState = cameraPosition
     ) {
 
+
         Polygon(
             points = germanyLocations,
             clickable = false,
-            fillColor = Color.Red.copy(alpha = 0.5f),
+            fillColor = Color.DarkGray.copy(alpha = 0.8f),
             geodesic = false, //false = Krümmung der Erdoberfläche wird nicht beachtet
-            holes = holeList,
+            holes = visitedList,
             strokeColor = Color.Magenta,
             strokeJointType = JointType.DEFAULT,
             strokePattern = null,
@@ -91,5 +101,36 @@ fun MapScreen(
             zIndex = 1f,
             onClick = {}
         )
+
+        /*
+        for (tileData in UserConstants.testTileData) {
+            if (tileData.oppacity == 0) {
+                GroundOverlay(
+                    position = GroundOverlayPosition.create(
+                        LatLngBounds(
+                            LatLng(
+                                tileData.posLowerLeft[0],
+                                tileData.posLowerLeft[1]
+                            ), LatLng(tileData.posUpperRight[0], tileData.posUpperRight[1])
+                        )
+                    ), image = BitmapDescriptorFactory.fromResource(
+                        R.drawable.transparent_pixel
+                    )
+                )
+            } else {
+                GroundOverlay(
+                    position = GroundOverlayPosition.create(
+                        LatLngBounds(
+                            LatLng(
+                                tileData.posLowerLeft[0],
+                                tileData.posLowerLeft[1]
+                            ), LatLng(tileData.posUpperRight[0], tileData.posUpperRight[1])
+                        )
+                    ), image = BitmapDescriptorFactory.fromResource(
+                        R.drawable.grauer_pixel
+                    )
+                )
+            }
+        } */
     }
 }

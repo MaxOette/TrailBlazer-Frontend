@@ -2,6 +2,7 @@ package de.max.trailblazerfrontendv1.Util
 
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import de.max.trailblazerfrontendv1.Api.TileData
 
 class UserConstants {
      companion object {
@@ -10,7 +11,9 @@ class UserConstants {
          var email: String = ""
          var userLat: Double = 48.8092627
          var userLng: Double = 8.9775588
-         var cameraPosition = CameraPosition.fromLatLngZoom(LatLng(userLat, userLng), 14f)
+         var cameraPosition = CameraPosition.fromLatLngZoom(LatLng(userLat, userLng), GeneralConstants.defaultZoom)
+
+         var testTileData: List<TileData> = emptyList()
 
 //         fun getRefreshToken(): String{
 //             return refreshToken
