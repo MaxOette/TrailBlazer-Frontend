@@ -51,6 +51,24 @@ interface LogoutService{
     suspend fun logout()
 }
 
+interface TileService{
+    @GET("/api/v1/locations")
+    suspend fun getTiles() : TileData
+}
+
+object TileApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(TileApi.httpClient)
+        .build()
+    val tileService: TileService = retrofit.create(TileService::class.java)
+}
+
 object LogoutAPI{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())

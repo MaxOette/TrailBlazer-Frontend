@@ -23,3 +23,14 @@ data class ActiveUserData(
     val id: Int,
     val refresh_token: String
 )
+
+data class TileData(
+    val zoomLevel: Int,
+    val oppacity: Int,
+    val posUpperLeft: DoubleArray,
+    val posUpperRight: DoubleArray,
+    val posLowerRight: DoubleArray,
+    val posLowerLeft: DoubleArray,
+    val xtile: Int,
+    val ytile: Int
+)
