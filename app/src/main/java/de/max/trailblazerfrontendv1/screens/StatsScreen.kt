@@ -24,6 +24,7 @@ fun StatsScreen() {
         )
         Button(
             onClick = {
+                println("getTiles clicked --------------------")
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
                         val response = TileApi.tileService.getTiles()
@@ -32,7 +33,8 @@ fun StatsScreen() {
                         println(tileData)
                     }   catch(e: Error) {
                         println(e.message)
-                    }                 }
+                    }
+                }
             }
         ){
             Text( text = "get Tiles")

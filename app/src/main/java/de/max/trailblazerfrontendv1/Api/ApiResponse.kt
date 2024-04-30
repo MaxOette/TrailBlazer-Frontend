@@ -26,7 +26,7 @@ data class ActiveUserData(
 
 data class TileData(
     val zoomLevel: Int,
-    val oppacity: Int,
+    val opacity: Int,
     val posUpperLeft: DoubleArray,
     val posUpperRight: DoubleArray,
     val posLowerRight: DoubleArray,

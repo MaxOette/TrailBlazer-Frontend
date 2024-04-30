@@ -44,7 +44,7 @@ fun MapScreen(
 
     val smallPolygonLocations : MutableList<TileData> = mutableListOf()
 
-    val visitedList = UserConstants.testTileData.filter{ (it.oppacity == 0) }
+    val visitedList = UserConstants.testTileData.filter{ (it.opacity == 0) }
         .map { listOf(
             LatLng(it.posUpperRight[0], it.posUpperRight[1]),
             LatLng(it.posLowerRight[0], it.posLowerRight[1]),
