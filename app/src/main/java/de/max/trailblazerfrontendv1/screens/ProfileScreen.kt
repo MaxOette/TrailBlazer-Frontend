@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BorderColor
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.max.trailblazerfrontendv1.Api.FriendApi
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.MainActivity
@@ -138,9 +140,29 @@ fun ElevatedCardExample() {
         fontWeight = FontWeight.Bold,
         fontSize = 36.sp
     )
+    LazyColumn(
+
+    ) {
+        item {
+            GetFriendsButton()
+        }
+    }
 }
 
 //	•`_´•
+
+@Composable
+fun GetFriendsButton(){
+    Button(
+        onClick = {
+            GlobalScope.launch(Dispatchers.IO) {
+                val response = FriendApi.friendService.getFriends();
+            }
+        }
+    ){
+        Text("get freunde test")
+    }
+}
 
 
 @Composable

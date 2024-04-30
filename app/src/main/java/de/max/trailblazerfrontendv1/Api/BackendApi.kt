@@ -56,6 +56,24 @@ interface TileService{
     suspend fun getTiles() : List<TileData>
 }
 
+interface FriendService{
+    @GET("/api/v1/friends")
+    suspend fun getFriends() : Response
+}
+
+object FriendApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(FriendApi.httpClient)
+        .build()
+    val friendService: FriendService = retrofit.create(FriendService::class.java)
+}
+
 object TileApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
