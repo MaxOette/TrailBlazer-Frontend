@@ -38,18 +38,19 @@ import de.max.trailblazerfrontendv1.ui.dialog.GpsTrackingDisabledDialog
 fun MapScreen(
     viewModel: MapsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
+    GeneralConstants.viewModel = viewModel
     val applicationContext = GeneralConstants.applicationContext
-        if (!GeneralConstants.fetchingGps && GeneralConstants.gpsTrackingEnabled) {
-            Intent(applicationContext, LocationService::class.java).apply {
-                action = LocationService.ACTION_START
-                applicationContext.startService(this)
-            }
-            GeneralConstants.fetchingGps = true;
+    if (!GeneralConstants.fetchingGps && GeneralConstants.gpsTrackingEnabled) {
+        Intent(applicationContext, LocationService::class.java).apply {
+            action = LocationService.ACTION_START
+            applicationContext.startService(this)
         }
-        if (!GeneralConstants.gpsTrackingEnabled){
-            GeneralConstants.fetchingGps = false;
-            GpsTrackingDisabledDialog(mutableStateOf(true), applicationContext)
-        }
+        GeneralConstants.fetchingGps = true;
+    }
+    if (!GeneralConstants.gpsTrackingEnabled) {
+        GeneralConstants.fetchingGps = false;
+        GpsTrackingDisabledDialog(mutableStateOf(true), applicationContext)
+    }
 
     ViewModelHolder.ViewModelHolderObject.mapsViewModel = viewModel
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.DarkMode
@@ -49,8 +50,10 @@ import java.io.IOException
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import com.google.maps.android.compose.MapType
 import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.datastore.DataStoreSingleton
+import de.max.trailblazerfrontendv1.map.MapsViewModel
 import kotlinx.coroutines.MainScope
 
 @Composable
@@ -303,38 +306,52 @@ fun MapSettingsCard(applicationContext: Context, dataStore: DataStore<Preference
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .height(128.dp)
+            .height(180.dp)
             .padding(top = 8.dp),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(all = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
 
-            var selectedOption = remember { mutableIntStateOf(1) }
+            var selectedOption = remember { mutableIntStateOf(GeneralConstants.mapType.value) }
 
             // Erste Spalte
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(painter = painterResource(id = R.drawable.kartenstil_flat), contentDescription = "Bild 1")
+                Image(painter = painterResource(id = R.drawable.kartenstil_flat), contentDescription = "Kartenstil Flach", modifier = Modifier.size(80.dp))
                 Text(text = "Flach")
-                RadioButton(selected = selectedOption.value == 0, onClick = { selectedOption.intValue = 0 })
+                RadioButton(selected = selectedOption.value == 1, onClick = {
+                    selectedOption.intValue = 1
+                    GeneralConstants.mapType = MapType.NORMAL
+                    GeneralConstants.viewModel.updateMapType(MapType.NORMAL)
+                })
             }
 
             // Zweite Spalte
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(painter = painterResource(id = R.drawable.kartenstil_terrain), contentDescription = "Bild 2")
+                Image(painter = painterResource(id = R.drawable.kartenstil_terrain), contentDescription = "Kartenstil Gelände", modifier = Modifier.size(80.dp))
                 Text(text = "Gelände")
-                RadioButton(selected = selectedOption.value == 1, onClick = { selectedOption.intValue = 1 })
+                RadioButton(selected = selectedOption.value == 3, onClick = {
+                    selectedOption.intValue = 3
+                    GeneralConstants.mapType = MapType.TERRAIN
+                    GeneralConstants.viewModel.updateMapType(MapType.TERRAIN)
+                })
+
             }
 
             // Dritte Spalte
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(painter = painterResource(id = R.drawable.kartenstil_sattelite), contentDescription = "Bild 3")
+                Image(painter = painterResource(id = R.drawable.kartenstil_sattelite), contentDescription = "Kartenstil Satellit", modifier = Modifier.size(80.dp))
                 Text(text = "Satellit")
-                RadioButton(selected = selectedOption.value == 2, onClick = { selectedOption.intValue = 2 })
+                RadioButton(selected = selectedOption.value == 4, onClick = {
+                    selectedOption.intValue = 4
+                    GeneralConstants.mapType = MapType.HYBRID
+                    GeneralConstants.viewModel.updateMapType(MapType.HYBRID)
+                })
+
             }
         }
     }

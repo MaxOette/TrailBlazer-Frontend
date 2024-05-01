@@ -29,8 +29,9 @@ import de.max.trailblazerfrontendv1.Util.GeneralConstants
  * #####################################################
  *
  */
+
 data class MapState(
-    val properties: MapProperties = MapProperties(
+    var properties: MapProperties = MapProperties(
         mapType = MapType.TERRAIN, isMyLocationEnabled = true,
         latLngBoundsForCameraTarget = GeneralConstants.cameraBounds,
         maxZoomPreference = GeneralConstants.maxZoom,
