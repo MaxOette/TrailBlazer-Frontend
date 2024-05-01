@@ -2,6 +2,7 @@ package de.max.trailblazerfrontendv1.screens
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.ShareLocation
 import androidx.compose.material3.Button
@@ -19,16 +21,19 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +49,7 @@ import java.io.IOException
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.datastore.DataStoreSingleton
 import kotlinx.coroutines.MainScope
 
@@ -66,11 +72,13 @@ fun SettingsScreen(applicationContext: Context) {
                 fontSize = 36.sp
             )
             Spacer(modifier = Modifier.height(24.dp))
+            /*
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+
                 StartTrackingButton(
                     modifier = Modifier
                         .weight(1f)
@@ -83,7 +91,7 @@ fun SettingsScreen(applicationContext: Context) {
                         .padding(start = 4.dp),
                     applicationContext
                 )
-            }
+            } */
 
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -93,13 +101,14 @@ fun SettingsScreen(applicationContext: Context) {
 
             Spacer(modifier = Modifier.height(28.dp))
             Text(
-                text = "Karteneinstellungen",
+                text = "Kartenstil",
             )
-            //AppSettingsCard(applicationContext)
+            MapSettingsCard(applicationContext, dataStore)
         }
     }
 }
 
+/*
 @Composable
 fun StartTrackingButton(modifier: Modifier, applicationContext: Context) {
     Button(
@@ -113,8 +122,9 @@ fun StartTrackingButton(modifier: Modifier, applicationContext: Context) {
     ) {
         Text("Start GPS Tracking")
     }
-}
+} */
 
+/*
 @Composable
 fun StopTrackingButton(modifier: Modifier, applicationContext: Context) {
     Button(
@@ -128,7 +138,7 @@ fun StopTrackingButton(modifier: Modifier, applicationContext: Context) {
     ) {
         Text("Stop GPS Tracking")
     }
-}
+} */
 
 @Composable
 fun AppSettingsCard(applicationContext: Context, dataStore: DataStore<Preferences>) {
@@ -283,4 +293,49 @@ fun DarkModeSwitch(applicationContext: Context, dataStore: DataStore<Preferences
             }
         },
     )
+}
+
+@Composable
+fun MapSettingsCard(applicationContext: Context, dataStore: DataStore<Preferences>) {
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(128.dp)
+            .padding(top = 8.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+
+            var selectedOption = remember { mutableIntStateOf(1) }
+
+            // Erste Spalte
+            Column(verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(painter = painterResource(id = R.drawable.kartenstil_flat), contentDescription = "Bild 1")
+                Text(text = "Flach")
+                RadioButton(selected = selectedOption.value == 0, onClick = { selectedOption.intValue = 0 })
+            }
+
+            // Zweite Spalte
+            Column(verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(painter = painterResource(id = R.drawable.kartenstil_terrain), contentDescription = "Bild 2")
+                Text(text = "Gelände")
+                RadioButton(selected = selectedOption.value == 1, onClick = { selectedOption.intValue = 1 })
+            }
+
+            // Dritte Spalte
+            Column(verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(painter = painterResource(id = R.drawable.kartenstil_sattelite), contentDescription = "Bild 3")
+                Text(text = "Satellit")
+                RadioButton(selected = selectedOption.value == 2, onClick = { selectedOption.intValue = 2 })
+            }
+        }
+    }
 }
