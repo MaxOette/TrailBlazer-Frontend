@@ -103,7 +103,7 @@ fun ElevatedCardExample() {
             ) {
                 //Todo Anbinden des Usernames sobald verfügbar
                 Text(
-                    text = "Martin123",
+                    text = UserConstants.username,
                     modifier = Modifier.padding(start = 24.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 36.sp

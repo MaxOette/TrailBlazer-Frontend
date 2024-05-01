@@ -7,8 +7,7 @@ data class HealthResponse(
 data class RegisterUserData(
     val email: String,
     val password: String,
-    val firstname: String,
-    val lastname: String
+    val username: String
 )
 
 data class LoginUserData(
@@ -19,6 +18,7 @@ data class LoginUserData(
 data class ActiveUserData(
     val token: String,
     val type: String,
+    val username: String,
     val email: String,
     val id: Int,
     val refresh_token: String

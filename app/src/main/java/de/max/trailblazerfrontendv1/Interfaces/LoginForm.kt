@@ -62,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -125,6 +126,7 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
                     submit = { checkCredentials(credentials, context) },
                     modifier = Modifier.fillMaxWidth()
                 )
+                /*
                 Spacer(modifier = Modifier.height(16.dp))
                 LabeledCheckbox(
                     "angemeldet bleiben",
@@ -132,7 +134,7 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
                         credentials = credentials.copy(remember = credentials.remember)
                     },
                     isChecked = credentials.remember
-                )
+                ) */
                 Spacer(modifier = Modifier.height(28.dp))
                 Button(
                     onClick = { checkCredentials(credentials, context) },
@@ -172,12 +174,13 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
 
 fun adminLogin(context: Context){
     val loginUserData = LoginUserData (
-        email = "email@email.de",
-        password = "password123"
+        email = "datev@test.de",
+        password = "password123."
     )
     GlobalScope.launch(Dispatchers.IO) {
         try {
             val response = LoginApi.loginService.postLoginUser(loginUserData)
+            println(response)
             UserConstants.refreshToken = response.refresh_token
             UserConstants.accessToken = response.token
             UserConstants.email = response.email
@@ -206,6 +209,8 @@ fun checkCredentials(creds: Credentials, context: Context) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
                 val response = LoginApi.loginService.postLoginUser(loginUserData)
+                println("###################")
+                println(response)
                 UserConstants.refreshToken = response.refresh_token
                 UserConstants.accessToken = response.token
                 UserConstants.email = response.email
@@ -320,6 +325,7 @@ fun PasswordField(
 
         }
     }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
 
     TextField(
@@ -333,7 +339,7 @@ fun PasswordField(
             keyboardType = KeyboardType.Password
         ),
         keyboardActions = KeyboardActions(
-            onDone = { submit }
+            onDone = { keyboardController?.hide() }
         ),
         //placeholder = { Text(placeholder) },
         label = { Text(label) },

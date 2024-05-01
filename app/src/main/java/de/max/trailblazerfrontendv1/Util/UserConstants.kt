@@ -9,6 +9,7 @@ class UserConstants {
          var refreshToken: String = ""
          var accessToken: String = ""
          var email: String = ""
+         var username: String = ""
          var userLat: Double = 48.8092627
          var userLng: Double = 8.9775588
          var cameraPosition = CameraPosition.fromLatLngZoom(LatLng(userLat, userLng), GeneralConstants.defaultZoom)
