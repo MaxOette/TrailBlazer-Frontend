@@ -5,7 +5,6 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
-//import retrofit2.Response
 import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -52,7 +51,7 @@ interface LogoutService{
 }
 
 interface TileService{
-    @GET("/api/v1/locations?latitude=49.2086&longitude=10.1713&zoomLevel=14")
+    @GET("/api/v1/locations?latitude=49.6341&longitude=11.2077&zoomLevel=14")
     suspend fun getTiles() : List<TileData>
 }
 

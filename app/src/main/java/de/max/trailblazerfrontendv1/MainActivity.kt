@@ -1,7 +1,6 @@
 package de.max.trailblazerfrontendv1
 
 import android.Manifest
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -21,21 +20,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.Api.AuthStatusApi
 import de.max.trailblazerfrontendv1.Api.HealthApi
 import de.max.trailblazerfrontendv1.Api.RefreshApi
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
+import de.max.trailblazerfrontendv1.Util.datastore.dataStoreReader
 import de.max.trailblazerfrontendv1.screens.MapScreen
 import de.max.trailblazerfrontendv1.navigation.AppNavigation
 import de.max.trailblazerfrontendv1.ui.theme.TrailBlazerFrontendV1Theme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -55,19 +50,18 @@ class MainActivity : ComponentActivity() {
             0
         )
 
-
-
         setContent {
-            TrailBlazerFrontendV1Theme(isSystemInDarkTheme() || GeneralConstants.forceDarkMode) {
+            val darkModeEnabled = dataStoreReader(applicationContext = applicationContext, key = "dark_mode", initial = false)
+            TrailBlazerFrontendV1Theme(isSystemInDarkTheme() || darkModeEnabled) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    NavigateToLoginButton()
-                    CheckHealthButton()
-                    RefreshButton()
-                    AuthButton()
+                    //NavigateToLoginButton()
+                    //CheckHealthButton()
+                    //RefreshButton()
+                    //AuthButton()
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
@@ -76,8 +70,8 @@ class MainActivity : ComponentActivity() {
                     }
 
                 }
-                AppNavigation(GeneralConstants.applicationContext)
-
+                    AppNavigation(GeneralConstants.applicationContext)
+                    GeneralConstants.appNavBar = true
             }
         }
     }

@@ -1,29 +1,18 @@
 package de.max.trailblazerfrontendv1.screens
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.activity.ComponentActivity
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.ImageSearch
-import androidx.compose.material.icons.filled.ModeNight
 import androidx.compose.material.icons.filled.ShareLocation
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -33,33 +22,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat.recreate
-import de.max.trailblazerfrontendv1.Api.LogoutAPI
-import de.max.trailblazerfrontendv1.LoginActivity
-import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
-import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.location.LocationService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.io.IOException
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
+import de.max.trailblazerfrontendv1.Util.datastore.DataStoreSingleton
+import kotlinx.coroutines.MainScope
 
 @Composable
 fun SettingsScreen(applicationContext: Context) {
+    println("----Settings Screen geöffnet")
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -106,9 +94,6 @@ fun SettingsScreen(applicationContext: Context) {
             )
             //AppSettingsCard(applicationContext)
         }
-
-
-
     }
 }
 
@@ -219,16 +204,34 @@ fun GPSTrackingSwitch(applicationContext: Context) {
 
 @Composable
 fun DarkModeSwitch(applicationContext: Context) {
-    var darkModeEnabled by rememberSaveable { mutableStateOf(GeneralConstants.forceDarkMode) }
+
+    val dataStore = DataStoreSingleton.DataStoreManager.getDataStore(applicationContext)
+
+    val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
+
+    val darkModeEnabledFlow: Flow<Boolean> = dataStore.data
+        .catch { exception  ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[DARK_MODE_KEY] ?: false
+        }
+
+    val darkModeEnabled by darkModeEnabledFlow.collectAsState(initial = false)
+
+    val scope = MainScope()
 
     Switch(
         checked = darkModeEnabled,
-        onCheckedChange = {
-            darkModeEnabled = it
-            if (it) {
-                GeneralConstants.forceDarkMode = true
-            } else {
-                GeneralConstants.forceDarkMode = false
+        onCheckedChange = { isChecked ->
+            scope.launch {
+                dataStore.edit { settings ->
+                    settings[DARK_MODE_KEY] = isChecked
+                }
             }
         },
     )

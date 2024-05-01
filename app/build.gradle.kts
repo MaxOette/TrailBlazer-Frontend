@@ -70,6 +70,9 @@ dependencies {
     //GPS
     implementation("com.google.android.gms:play-services-location:21.2.0")
 
+    //DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.0")
+
     //Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
