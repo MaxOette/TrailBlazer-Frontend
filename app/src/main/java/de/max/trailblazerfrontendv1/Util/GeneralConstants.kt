@@ -9,6 +9,7 @@ class GeneralConstants {
         //Constant variables
         lateinit var applicationContext: Context
         var fetchingGps : Boolean = false
+        var gpsTrackingEnabled : Boolean = true
         var forceDarkMode : Boolean = false
         var appNavBar : Boolean = false;
 

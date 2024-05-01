@@ -1,9 +1,14 @@
 package de.max.trailblazerfrontendv1.screens
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,21 +31,28 @@ import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.Util.ViewModelHolder
 import de.max.trailblazerfrontendv1.location.LocationService
 import de.max.trailblazerfrontendv1.map.MapsViewModel
+import de.max.trailblazerfrontendv1.ui.dialog.GpsTrackingDisabledDialog
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun MapScreen(
     viewModel: MapsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
     val applicationContext = GeneralConstants.applicationContext
+        if (!GeneralConstants.fetchingGps && GeneralConstants.gpsTrackingEnabled) {
+            Intent(applicationContext, LocationService::class.java).apply {
+                action = LocationService.ACTION_START
+                applicationContext.startService(this)
+            }
+            GeneralConstants.fetchingGps = true;
+        }
+        if (!GeneralConstants.gpsTrackingEnabled){
+            GeneralConstants.fetchingGps = false;
+            GpsTrackingDisabledDialog(mutableStateOf(true), applicationContext)
+        }
+
     ViewModelHolder.ViewModelHolderObject.mapsViewModel = viewModel
 
-    if (!GeneralConstants.fetchingGps) {
-        Intent(applicationContext, LocationService::class.java).apply {
-            action = LocationService.ACTION_START
-            applicationContext.startService(this)
-        }
-        GeneralConstants.fetchingGps = true;
-    }
 
     val smallPolygonLocations : MutableList<TileData> = mutableListOf()
 
@@ -75,6 +87,7 @@ fun MapScreen(
     LaunchedEffect(Unit) {
         viewModel.cameraPosition.collect { newPosition ->
             cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))
+            //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
         }
     }
 

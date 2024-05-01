@@ -17,7 +17,7 @@ fun dataStoreReader(applicationContext: Context, key: String, initial: Boolean):
 
     val SETTING_KEY = booleanPreferencesKey(key)
 
-    val darkModeEnabledFlow: Flow<Boolean> = dataStore.data
+    val settingEnabledFlow: Flow<Boolean> = dataStore.data
         .catch { exception  ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -29,6 +29,6 @@ fun dataStoreReader(applicationContext: Context, key: String, initial: Boolean):
             preferences[SETTING_KEY] ?: false
         }
 
-    val setting by darkModeEnabledFlow.collectAsState(initial = initial)
+    val setting by settingEnabledFlow.collectAsState(initial = initial)
     return setting
 }

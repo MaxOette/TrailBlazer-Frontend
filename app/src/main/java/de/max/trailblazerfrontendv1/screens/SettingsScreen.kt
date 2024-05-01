@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.location.LocationService
 import kotlinx.coroutines.flow.Flow
@@ -47,7 +49,8 @@ import kotlinx.coroutines.MainScope
 
 @Composable
 fun SettingsScreen(applicationContext: Context) {
-    println("----Settings Screen geöffnet")
+    val dataStore = DataStoreSingleton.DataStoreManager.getDataStore(applicationContext)
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -86,7 +89,7 @@ fun SettingsScreen(applicationContext: Context) {
             Text(
                 text = "App-Einstellungen",
             )
-            AppSettingsCard(applicationContext)
+            AppSettingsCard(applicationContext, dataStore)
 
             Spacer(modifier = Modifier.height(28.dp))
             Text(
@@ -128,7 +131,7 @@ fun StopTrackingButton(modifier: Modifier, applicationContext: Context) {
 }
 
 @Composable
-fun AppSettingsCard(applicationContext: Context) {
+fun AppSettingsCard(applicationContext: Context, dataStore: DataStore<Preferences>) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -174,19 +177,66 @@ fun AppSettingsCard(applicationContext: Context) {
                 )
                 Text(text = "Darkmode erzwingen", modifier = Modifier.padding(start = 8.dp))
             }
-            DarkModeSwitch(applicationContext)
+            DarkModeSwitch(applicationContext, dataStore)
         }
     }
 }
 
+/*
+@Composable
+fun GPSTrackingSwitch(applicationContext: Context, dataStore: DataStore<Preferences>) {
+    val GPS_TRACKING_KEY = booleanPreferencesKey("gps_tracking")
+
+    val gpsTrackingEnabledFlow: Flow<Boolean> = dataStore.data
+        .catch { exception  ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[GPS_TRACKING_KEY] ?: false
+        }
+
+    //val gpsTrackingEnabled by gpsTrackingEnabledFlow.collectAsState(initial = true)
+    var gpsTrackingEnabled = remember { GeneralConstants.gpsTrackingEnabled }
+    val scope = MainScope()
+
+    Switch(
+        checked = gpsTrackingEnabled,
+        onCheckedChange = { isChecked ->
+            gpsTrackingEnabled = isChecked
+            GeneralConstants.gpsTrackingEnabled = isChecked
+            scope.launch {
+                dataStore.edit { settings ->
+                    settings[GPS_TRACKING_KEY] = isChecked
+                }
+            }
+            if (isChecked) {
+                Intent(applicationContext, LocationService::class.java).apply {
+                    action = LocationService.ACTION_START
+                    applicationContext.startService(this)
+                }
+            } else {
+                Intent(applicationContext, LocationService::class.java).apply {
+                    action = LocationService.ACTION_STOP
+                    applicationContext.startService(this)
+                }
+            }
+        },
+    )
+} */
+
 @Composable
 fun GPSTrackingSwitch(applicationContext: Context) {
-    var checked by remember { mutableStateOf(GeneralConstants.fetchingGps) }
+    var checked by remember { mutableStateOf(GeneralConstants.gpsTrackingEnabled) }
 
     Switch(
         checked = checked,
         onCheckedChange = {
             checked = it
+            GeneralConstants.gpsTrackingEnabled = it
             if (it) {
                 Intent(applicationContext, LocationService::class.java).apply {
                     action = LocationService.ACTION_START
@@ -203,9 +253,7 @@ fun GPSTrackingSwitch(applicationContext: Context) {
 }
 
 @Composable
-fun DarkModeSwitch(applicationContext: Context) {
-
-    val dataStore = DataStoreSingleton.DataStoreManager.getDataStore(applicationContext)
+fun DarkModeSwitch(applicationContext: Context, dataStore: DataStore<Preferences>) {
 
     val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
 
