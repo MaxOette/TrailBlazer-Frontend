@@ -24,6 +24,7 @@ import com.google.maps.android.compose.GroundOverlayPosition
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
+import de.max.trailblazerfrontendv1.Api.TileApi
 import de.max.trailblazerfrontendv1.Api.TileData
 import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
@@ -57,7 +58,7 @@ fun MapScreen(
 
     val smallPolygonLocations : MutableList<TileData> = mutableListOf()
 
-    val visitedList = UserConstants.testTileData.filter{ (it.opacity == 0) }
+    var visitedList = UserConstants.testTileData.filter{ (it.opacity == 0) }
         .map { listOf(
             LatLng(it.posUpperRight[0], it.posUpperRight[1]),
             LatLng(it.posLowerRight[0], it.posLowerRight[1]),
@@ -85,12 +86,30 @@ fun MapScreen(
         CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), GeneralConstants.defaultZoom)
     }
 
+    val polygonData = remember {
+        mutableStateOf(emptyList<List<LatLng>>())
+    }
+
     LaunchedEffect(Unit) {
         viewModel.cameraPosition.collect { newPosition ->
             cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))
             //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
+            try {
+                polygonData.value = TileApi.tileService.getTiles(cameraPosition.position.target.latitude, cameraPosition.position.target.longitude, /* cameraPosition.position.zoom.toInt() */ GeneralConstants.defaultZoom.toInt().toByte()).filter{ (it.opacity == 0) }
+                    .map { listOf(
+                        LatLng(it.posUpperRight[0], it.posUpperRight[1]),
+                        LatLng(it.posLowerRight[0], it.posLowerRight[1]),
+                        LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
+                        LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
+                    ) }
+                println("--polygonData geholt für lat: " + cameraPosition.position.target.latitude + " mit Elementzahl: " + polygonData.value.size)
+            } catch (e : Exception) {
+                e.printStackTrace()
+            }
         }
     }
+
+
 
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
@@ -98,14 +117,17 @@ fun MapScreen(
         uiSettings = uiSettings,
         cameraPositionState = cameraPosition
     ) {
-
+        println("++++++++++ Beginning of Polygon ++++++++")
+        if (visitedList.size > 1) {
+            visitedList = visitedList.subList(0, 100)
+        }
 
         Polygon(
             points = germanyLocations,
             clickable = false,
             fillColor = Color.DarkGray.copy(alpha = 0.8f),
             geodesic = false, //false = Krümmung der Erdoberfläche wird nicht beachtet
-            holes = visitedList,
+            holes = polygonData.value,
             strokeColor = Color.Magenta,
             strokeJointType = JointType.DEFAULT,
             strokePattern = null,

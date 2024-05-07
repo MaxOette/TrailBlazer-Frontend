@@ -73,6 +73,9 @@ dependencies {
     //DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.0")
 
+    //HTTP Logging
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
+
     //Android
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

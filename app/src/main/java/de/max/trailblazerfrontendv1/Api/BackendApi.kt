@@ -1,11 +1,13 @@
 package de.max.trailblazerfrontendv1.Api
 
+import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
 import okhttp3.Response
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
@@ -14,6 +16,7 @@ import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface HealthService {
     @GET("/dev/health")
@@ -51,8 +54,13 @@ interface LogoutService{
 }
 
 interface TileService{
-    @GET("/api/v1/locations?latitude=49.6341&longitude=11.2077&zoomLevel=14")
-    suspend fun getTiles() : List<TileData>
+    @GET("/api/v1/locations")
+    //@GET("/api/v1/locations/all")
+    suspend fun getTiles(
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double,
+        @Query("zoomLevel") zoomLevel: Byte
+    ) : List<TileData>
 }
 
 interface FriendService{
@@ -76,6 +84,9 @@ object FriendApi{
 object TileApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
         .retryOnConnectionFailure(true)
         .build()
     private val retrofit = Retrofit.Builder()
