@@ -7,9 +7,11 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -18,6 +20,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.compose.CameraMoveStartedReason
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.GroundOverlay
 import com.google.maps.android.compose.GroundOverlayPosition
@@ -41,6 +45,7 @@ fun MapScreen(
 ) {
     GeneralConstants.viewModel = viewModel
     val applicationContext = GeneralConstants.applicationContext
+
     if (!GeneralConstants.fetchingGps && GeneralConstants.gpsTrackingEnabled) {
         Intent(applicationContext, LocationService::class.java).apply {
             action = LocationService.ACTION_START
@@ -92,7 +97,9 @@ fun MapScreen(
 
     LaunchedEffect(Unit) {
         viewModel.cameraPosition.collect { newPosition ->
-            cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))
+            if (!GeneralConstants.manualSearch) {
+                cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))
+            }
             //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
             try {
                 polygonData.value = TileApi.tileService.getTiles(cameraPosition.position.target.latitude, cameraPosition.position.target.longitude, /* cameraPosition.position.zoom.toInt() */ GeneralConstants.defaultZoom.toInt().toByte()).filter{ (it.opacity == 0) }
@@ -109,19 +116,16 @@ fun MapScreen(
         }
     }
 
-
-
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         properties = viewModel.state.properties,
         uiSettings = uiSettings,
-        cameraPositionState = cameraPosition
-    ) {
-        println("++++++++++ Beginning of Polygon ++++++++")
-        if (visitedList.size > 1) {
-            visitedList = visitedList.subList(0, 100)
+        cameraPositionState = cameraPosition,
+        onMyLocationButtonClick = {
+            GeneralConstants.manualSearch = false
+            false
         }
-
+    ) {
         Polygon(
             points = germanyLocations,
             clickable = false,
@@ -137,36 +141,24 @@ fun MapScreen(
             zIndex = 1f,
             onClick = {}
         )
+    }
+    TrackMapInteraction(cameraPositionState = cameraPosition)
 
-        /*
-        for (tileData in UserConstants.testTileData) {
-            if (tileData.oppacity == 0) {
-                GroundOverlay(
-                    position = GroundOverlayPosition.create(
-                        LatLngBounds(
-                            LatLng(
-                                tileData.posLowerLeft[0],
-                                tileData.posLowerLeft[1]
-                            ), LatLng(tileData.posUpperRight[0], tileData.posUpperRight[1])
-                        )
-                    ), image = BitmapDescriptorFactory.fromResource(
-                        R.drawable.transparent_pixel
-                    )
-                )
-            } else {
-                GroundOverlay(
-                    position = GroundOverlayPosition.create(
-                        LatLngBounds(
-                            LatLng(
-                                tileData.posLowerLeft[0],
-                                tileData.posLowerLeft[1]
-                            ), LatLng(tileData.posUpperRight[0], tileData.posUpperRight[1])
-                        )
-                    ), image = BitmapDescriptorFactory.fromResource(
-                        R.drawable.grauer_pixel
-                    )
-                )
-            }
-        } */
+}
+
+@Composable
+fun TrackMapInteraction(
+    cameraPositionState: CameraPositionState
+) {
+    val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = {
+
+        val cameraMovementReason = cameraPositionState.cameraMoveStartedReason
+
+        if (cameraMovementReason == CameraMoveStartedReason.GESTURE) {
+            GeneralConstants.manualSearch = true
+        }
+    }
+    LaunchedEffect(key1 = cameraPositionState.isMoving) {
+        onMapCameraIdle(cameraPositionState.position)
     }
 }
