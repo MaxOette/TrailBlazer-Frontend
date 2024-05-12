@@ -1,42 +1,34 @@
 package de.max.trailblazerfrontendv1.screens
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.CameraMoveStartedReason
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.GroundOverlay
-import com.google.maps.android.compose.GroundOverlayPosition
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
 import de.max.trailblazerfrontendv1.Api.TileApi
 import de.max.trailblazerfrontendv1.Api.TileData
-import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.Util.ViewModelHolder
 import de.max.trailblazerfrontendv1.location.LocationService
 import de.max.trailblazerfrontendv1.map.MapsViewModel
 import de.max.trailblazerfrontendv1.ui.dialog.GpsTrackingDisabledDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -61,15 +53,17 @@ fun MapScreen(
     ViewModelHolder.ViewModelHolderObject.mapsViewModel = viewModel
 
 
-    val smallPolygonLocations : MutableList<TileData> = mutableListOf()
+    val smallPolygonLocations: MutableList<TileData> = mutableListOf()
 
-    var visitedList = UserConstants.testTileData.filter{ (it.opacity == 0) }
-        .map { listOf(
-            LatLng(it.posUpperRight[0], it.posUpperRight[1]),
-            LatLng(it.posLowerRight[0], it.posLowerRight[1]),
-            LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
-            LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
-            ) }
+    var visitedList = UserConstants.testTileData.filter { (it.opacity == 0) }
+        .map {
+            listOf(
+                LatLng(it.posUpperRight[0], it.posUpperRight[1]),
+                LatLng(it.posLowerRight[0], it.posLowerRight[1]),
+                LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
+                LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
+            )
+        }
 
     val germanyLocations = listOf(
         LatLng(47.270111, 5.86633), //südwest
@@ -84,11 +78,14 @@ fun MapScreen(
     )
 
     val uiSettings = remember {
-        MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = true)
+        MapUiSettings(myLocationButtonEnabled = true, zoomControlsEnabled = false)
     }
 
     val cameraPosition = rememberCameraPositionState {
-        CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), GeneralConstants.defaultZoom)
+        CameraPosition.fromLatLngZoom(
+            LatLng(UserConstants.userLat, UserConstants.userLng),
+            GeneralConstants.volatileZoom
+        )
     }
 
     val polygonData = remember {
@@ -97,20 +94,30 @@ fun MapScreen(
 
     LaunchedEffect(Unit) {
         viewModel.cameraPosition.collect { newPosition ->
+            //Neue Kachel aufecken
+            //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
+            //Kamera zur aktuellen Position teleportieren
             if (!GeneralConstants.manualSearch) {
                 cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))
             }
-            //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
+
+            //Alle Kacheln im Bereich holen
             try {
-                polygonData.value = TileApi.tileService.getTiles(cameraPosition.position.target.latitude, cameraPosition.position.target.longitude, /* cameraPosition.position.zoom.toInt() */ GeneralConstants.defaultZoom.toInt().toByte()).filter{ (it.opacity == 0) }
-                    .map { listOf(
-                        LatLng(it.posUpperRight[0], it.posUpperRight[1]),
-                        LatLng(it.posLowerRight[0], it.posLowerRight[1]),
-                        LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
-                        LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
-                    ) }
+                polygonData.value = TileApi.tileService.getTiles(
+                    cameraPosition.position.target.latitude,
+                    cameraPosition.position.target.longitude,
+                    GeneralConstants.volatileZoom.toInt().toByte()
+                ).filter { (it.opacity == 0) }
+                    .map {
+                        listOf(
+                            LatLng(it.posUpperRight[0], it.posUpperRight[1]),
+                            LatLng(it.posLowerRight[0], it.posLowerRight[1]),
+                            LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
+                            LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
+                        )
+                    }
                 println("--polygonData geholt für lat: " + cameraPosition.position.target.latitude + " mit Elementzahl: " + polygonData.value.size)
-            } catch (e : Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
@@ -123,7 +130,31 @@ fun MapScreen(
         cameraPositionState = cameraPosition,
         onMyLocationButtonClick = {
             GeneralConstants.manualSearch = false
-            false
+            GeneralConstants.volatileZoom = GeneralConstants.defaultZoom
+            GlobalScope.launch(Dispatchers.Main) {
+                cameraPosition.animate(
+                    CameraUpdateFactory.newCameraPosition(
+                        CameraPosition.fromLatLngZoom(
+                            LatLng(UserConstants.userLat, UserConstants.userLng),
+                            GeneralConstants.volatileZoom
+                        )
+                    )
+                )
+                polygonData.value = TileApi.tileService.getTiles(
+                    cameraPosition.position.target.latitude,
+                    cameraPosition.position.target.longitude, /* cameraPosition.position.zoom.toInt() */
+                    GeneralConstants.volatileZoom.toInt().toByte()
+                ).filter { (it.opacity == 0) }
+                    .map {
+                        listOf(
+                            LatLng(it.posUpperRight[0], it.posUpperRight[1]),
+                            LatLng(it.posLowerRight[0], it.posLowerRight[1]),
+                            LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
+                            LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
+                        )
+                    }
+            }
+            true
         }
     ) {
         Polygon(
@@ -142,23 +173,40 @@ fun MapScreen(
             onClick = {}
         )
     }
-    TrackMapInteraction(cameraPositionState = cameraPosition)
 
-}
-
-@Composable
-fun TrackMapInteraction(
-    cameraPositionState: CameraPositionState
-) {
     val onMapCameraIdle: (cameraPosition: CameraPosition) -> Unit = {
 
-        val cameraMovementReason = cameraPositionState.cameraMoveStartedReason
+        val cameraMovementReason = cameraPosition.cameraMoveStartedReason
 
         if (cameraMovementReason == CameraMoveStartedReason.GESTURE) {
             GeneralConstants.manualSearch = true
+            val newZoom = cameraPosition.position.zoom
+            if (GeneralConstants.volatileZoom != newZoom) {
+                GeneralConstants.volatileZoom = newZoom + 2
+            }
+            GlobalScope.launch(Dispatchers.Main) {
+                try {
+                    polygonData.value = TileApi.tileService.getTiles(
+                        cameraPosition.position.target.latitude,
+                        cameraPosition.position.target.longitude, /* cameraPosition.position.zoom.toInt() */
+                        GeneralConstants.volatileZoom.toInt().toByte()
+                    ).filter { (it.opacity == 0) }
+                        .map {
+                            listOf(
+                                LatLng(it.posUpperRight[0], it.posUpperRight[1]),
+                                LatLng(it.posLowerRight[0], it.posLowerRight[1]),
+                                LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
+                                LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
+                            )
+                        }
+                } catch (e : Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
-    LaunchedEffect(key1 = cameraPositionState.isMoving) {
-        onMapCameraIdle(cameraPositionState.position)
+    LaunchedEffect(key1 = cameraPosition.isMoving) {
+        onMapCameraIdle(cameraPosition.position)
+
     }
 }

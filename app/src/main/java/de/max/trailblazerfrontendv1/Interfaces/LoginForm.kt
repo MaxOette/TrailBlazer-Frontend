@@ -179,7 +179,7 @@ fun adminLogin(context: Context){
     )
     GlobalScope.launch(Dispatchers.IO) {
         try {
-            val response = LoginApi.loginService.postLoginUser(loginUserData)
+            val response = LoginApi.loginService.postLoginUser("UserPasswordAuth", loginUserData)
             println(response)
             UserConstants.refreshToken = response.refresh_token
             UserConstants.accessToken = response.token
@@ -208,7 +208,7 @@ fun checkCredentials(creds: Credentials, context: Context) {
         )
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val response = LoginApi.loginService.postLoginUser(loginUserData)
+                val response = LoginApi.loginService.postLoginUser("UserPasswordAuth", loginUserData)
                 println("###################")
                 println(response)
                 UserConstants.refreshToken = response.refresh_token

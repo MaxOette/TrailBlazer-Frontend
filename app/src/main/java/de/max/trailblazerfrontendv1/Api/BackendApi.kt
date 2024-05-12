@@ -33,6 +33,7 @@ interface RegisterService{
 interface LoginService{
     @POST("/api/v1/auth/login")
     suspend fun postLoginUser(
+        @Header("X-Login-Type") loginType: String,
         @Body loginUserData: LoginUserData
     ): ActiveUserData
 }

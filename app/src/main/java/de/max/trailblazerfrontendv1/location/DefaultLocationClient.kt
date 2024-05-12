@@ -5,7 +5,6 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
-import androidx.compose.runtime.Composable
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -15,7 +14,6 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
-import de.max.trailblazerfrontendv1.map.MapsViewModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -57,7 +55,7 @@ class DefaultLocationClient(
                         UserConstants.userLat = location.latitude
                         UserConstants.userLng = location.longitude
                         cameraPositionUpdater.updateCameraPosition(
-                            CameraPosition.fromLatLngZoom(LatLng(location.latitude, location.longitude), GeneralConstants.defaultZoom)
+                            CameraPosition.fromLatLngZoom(LatLng(location.latitude, location.longitude), GeneralConstants.volatileZoom)
                         )
                         println("[GPS-Position-Callback]: UserConstants gesetzt und CamPosUpdater informiert!")
                     }

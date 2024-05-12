@@ -27,7 +27,7 @@ fun StatsScreen() {
                 println("getTiles clicked --------------------")
                 GlobalScope.launch(Dispatchers.IO) {
                     try {
-                        val response = TileApi.tileService.getTiles(UserConstants.userLat, UserConstants.userLng, 14)
+                        val response = TileApi.tileService.getTiles(UserConstants.userLat, UserConstants.userLng, 10)
                         val tileData : List<TileData> = response
                         UserConstants.testTileData = tileData
                         println("" + tileData.size + " Kacheln geladen.")

@@ -16,6 +16,7 @@ class GeneralConstants {
         var appNavBar : Boolean = false
         var mapType : MapType = MapType.TERRAIN
         var manualSearch : Boolean = false
+        var volatileZoom : Float = 14f
         lateinit var viewModel : MapsViewModel
 
         //Constant values
