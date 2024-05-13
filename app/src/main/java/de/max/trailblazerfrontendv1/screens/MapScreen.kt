@@ -20,6 +20,7 @@ import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
 import de.max.trailblazerfrontendv1.Api.TileApi
 import de.max.trailblazerfrontendv1.Api.TileData
+import de.max.trailblazerfrontendv1.Api.VisitApi
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.Util.ViewModelHolder
@@ -96,6 +97,13 @@ fun MapScreen(
         viewModel.cameraPosition.collect { newPosition ->
             //Neue Kachel aufecken
             //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
+            if (GeneralConstants.gpsTrackingEnabled) {
+                try {
+                    VisitApi.visitService.postTile(newPosition.target.latitude, newPosition.target.longitude)
+                } catch (e : Exception) {
+                    e.printStackTrace()
+                }
+            }
             //Kamera zur aktuellen Position teleportieren
             if (!GeneralConstants.manualSearch) {
                 cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))
