@@ -35,9 +35,10 @@ data class TileData(
     val ytile: Int
 )
 
-data class FriendIds(
+data class Friend(
     val uuid: String,
     val email: String,
     val acceptedAt: String,
-    val stats: Int
+    val stats: Float
 )
+

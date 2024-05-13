@@ -66,7 +66,7 @@ interface TileService{
 
 interface FriendIdService{
     @GET("/api/v1/friends")
-    suspend fun getFriendsId() : ResponseBody
+    suspend fun getFriendsId() : List<Friend>
 }
 
 interface FriendInviteService{
