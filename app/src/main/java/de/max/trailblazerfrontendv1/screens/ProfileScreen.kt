@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -24,9 +26,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,7 +42,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.max.trailblazerfrontendv1.Api.FriendApi
+import de.max.trailblazerfrontendv1.Api.FriendIdApi
+import de.max.trailblazerfrontendv1.Api.FriendIds
+import de.max.trailblazerfrontendv1.Api.HealthApi
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.MainActivity
@@ -50,8 +58,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.Dispatcher
 
+
+
 @Composable
 fun ProfileScreen() {
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,25 +156,100 @@ fun ElevatedCardExample() {
 
     ) {
         item {
-            GetFriendsButton()
+            Button(
+                onClick = {
+                    GlobalScope.launch(Dispatchers.IO) {
+                        try {
+                            val response = FriendIdApi.friendIdService.getFriendsId()
+                            println(response);
+                        }catch (e: Error){
+                            println(e.message);
+                        }
+                    }
+                }
+            ){
+                Text("get freunde test")
+            }
         }
+        item{
+            friendCard(ExampleFriend())
+        }
+        item{
+            friendCard(ExampleFriend())
+        }
+        item{
+            friendCard(ExampleFriend())
+        }
+        item{
+            friendCard(ExampleFriend())
+        }
+        item{
+            friendCard(ExampleFriend())
+        }
+        item{
+            friendCard(ExampleFriend())
+        }
+        item { friendCard(ExampleFriend(userName = "Jonson123", progress = 36)) }
     }
 }
 
 //	•`_´•
 
+
+data class ExampleFriend(
+    var userName: String = "MaxMusterman",
+    var id: String = "",
+    var progress: Int = 55
+
+)
+
+
 @Composable
-fun GetFriendsButton(){
-    Button(
-        onClick = {
-            GlobalScope.launch(Dispatchers.IO) {
-                val response = FriendApi.friendService.getFriends();
+fun friendCard(friend: ExampleFriend) {
+    var userName: String = friend.userName
+    var progress: Int = friend.progress
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
+        modifier = Modifier
+            .height(120.dp)
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.profile_pic),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+                Spacer(modifier = Modifier.width(8.dp)) // Adding space between the image and the text
+                Text(
+                    text = userName,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
             }
+            Spacer(modifier = Modifier.height(8.dp))  // Space between the text and the progress bar
+            LinearProgressIndicator(
+                progress = progress / 100f,  // Convert to a floating point value expected by LinearProgressIndicator
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary  // Optionally customize the color
+            )
         }
-    ){
-        Text("get freunde test")
     }
 }
+
 
 
 @Composable
