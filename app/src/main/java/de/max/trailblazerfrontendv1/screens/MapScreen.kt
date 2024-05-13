@@ -20,6 +20,7 @@ import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
 import de.max.trailblazerfrontendv1.Api.TileApi
 import de.max.trailblazerfrontendv1.Api.TileData
+import de.max.trailblazerfrontendv1.Api.VisitApi
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.Util.ViewModelHolder
@@ -96,6 +97,13 @@ fun MapScreen(
         viewModel.cameraPosition.collect { newPosition ->
             //Neue Kachel aufecken
             //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
+            if (GeneralConstants.gpsTrackingEnabled) {
+                try {
+                    VisitApi.visitService.postTile(newPosition.target.latitude, newPosition.target.longitude)
+                } catch (e : Exception) {
+                    e.printStackTrace()
+                }
+            }
             //Kamera zur aktuellen Position teleportieren
             if (!GeneralConstants.manualSearch) {
                 cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))
@@ -180,9 +188,15 @@ fun MapScreen(
 
         if (cameraMovementReason == CameraMoveStartedReason.GESTURE) {
             GeneralConstants.manualSearch = true
-            val newZoom = cameraPosition.position.zoom
+            var newZoom = cameraPosition.position.zoom
             if (GeneralConstants.volatileZoom != newZoom) {
-                GeneralConstants.volatileZoom = newZoom + 2
+                newZoom = newZoom + 2
+                if(newZoom >= 14f) {
+                    newZoom = 14f
+                } else if (newZoom <= 8f) {
+                    newZoom = 8f
+                }
+                GeneralConstants.volatileZoom = newZoom
             }
             GlobalScope.launch(Dispatchers.Main) {
                 try {

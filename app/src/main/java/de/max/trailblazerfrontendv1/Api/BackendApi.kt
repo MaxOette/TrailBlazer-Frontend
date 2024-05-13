@@ -55,13 +55,21 @@ interface LogoutService{
 }
 
 interface TileService{
-    @GET("/api/v1/locations")
+    @GET("/api/v1/locations/merged")
     //@GET("/api/v1/locations/all")
     suspend fun getTiles(
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
         @Query("zoomLevel") zoomLevel: Byte
     ) : List<TileData>
+}
+
+interface VisitService {
+    @POST("/api/v1/location")
+    suspend fun postTile(
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double
+    ) : ResponseBody
 }
 
 interface FriendIdService{
@@ -169,6 +177,22 @@ object TileApi{
         .client(TileApi.httpClient)
         .build()
     val tileService: TileService = retrofit.create(TileService::class.java)
+}
+
+object VisitApi {
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .client(httpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val visitService:VisitService= retrofit.create(VisitService::class.java)
 }
 
 object LogoutAPI{
