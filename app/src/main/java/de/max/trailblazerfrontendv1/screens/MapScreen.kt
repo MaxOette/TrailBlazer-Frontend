@@ -188,9 +188,15 @@ fun MapScreen(
 
         if (cameraMovementReason == CameraMoveStartedReason.GESTURE) {
             GeneralConstants.manualSearch = true
-            val newZoom = cameraPosition.position.zoom
+            var newZoom = cameraPosition.position.zoom
             if (GeneralConstants.volatileZoom != newZoom) {
-                GeneralConstants.volatileZoom = newZoom + 2
+                newZoom = newZoom + 2
+                if(newZoom >= 14f) {
+                    newZoom = 14f
+                } else if (newZoom <= 8f) {
+                    newZoom = 8f
+                }
+                GeneralConstants.volatileZoom = newZoom
             }
             GlobalScope.launch(Dispatchers.Main) {
                 try {
