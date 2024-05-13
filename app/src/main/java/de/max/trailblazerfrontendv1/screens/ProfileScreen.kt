@@ -55,6 +55,9 @@ import androidx.compose.ui.unit.sp
 import de.max.trailblazerfrontendv1.Api.AddFriendApi
 import de.max.trailblazerfrontendv1.Api.Friend
 import de.max.trailblazerfrontendv1.Api.FriendIdApi
+import de.max.trailblazerfrontendv1.Api.FriendInviteApi
+import de.max.trailblazerfrontendv1.Api.Invite
+
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.R
@@ -71,6 +74,7 @@ import kotlinx.coroutines.withContext
 fun ProfileScreen() {
     var showDialog by remember { mutableStateOf(false) }
     var friends by remember { mutableStateOf(listOf<Friend>()) }
+    var invites by remember { mutableStateOf(listOf<Invite>())}
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -78,6 +82,7 @@ fun ProfileScreen() {
             try {
                 // Assuming the API returns the list directly as parsed JSON
                 friends = FriendIdApi.friendIdService.getFriendsId()
+                invites = FriendInviteApi.friendInviteService.getFriendInvites()
             } catch (e: Exception) {
                 println("Error fetching friends: ${e.localizedMessage}")
             }
@@ -106,6 +111,7 @@ fun ProfileScreen() {
             AddFriendDialog(
                 showDialog = showDialog,
                 onDismissRequest = { showDialog = false },
+                invites = invites,
                 onSubmit = { email ->
                     GlobalScope.launch(Dispatchers.IO) {
                         try {
@@ -130,8 +136,6 @@ fun ProfileScreen() {
 
 @Composable
 fun ElevatedCardExample() {
-
-
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -205,11 +209,45 @@ data class ExampleFriend(
 
 )
 
+@Composable
+fun inviteCard(invite: Invite){
+    var email: String = invite.email
+    var uuid = invite.uuid
+
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
+        modifier = Modifier
+            .height(120.dp)
+            .fillMaxWidth()
+            .padding(8.dp)
+    ){
+        Row(){
+            Text(email)
+            Button(
+                onClick = {
+
+                }
+            ){
+                Text("accept")
+            }
+            Button(
+                onClick = {
+
+                }
+            ){
+                Text("decline")
+            }
+        }
+    }
+}
 
 @Composable
 fun friendCard(friend: Friend) {
-    var email: String = friend.email
-    var progress: Float = friend.stats
+    var email= friend.email
+    var progress = friend.stats
+    var uuid = friend.uuid
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -313,7 +351,8 @@ fun LogoutButton(modifier: Modifier) {
 fun AddFriendDialog(
     showDialog: Boolean,
     onDismissRequest: () -> Unit,
-    onSubmit: (String) -> Unit
+    onSubmit: (String) -> Unit,
+    invites: List<Invite>
 ) {
     if (showDialog) {
         var email by remember { mutableStateOf("") }  // Declare email here so it's shared
@@ -344,7 +383,14 @@ fun AddFriendDialog(
                     Text("Abbrechen")
                 }
             }
+
         )
+        Text("Invites")
+        LazyColumn {
+            items(invites) { invite ->
+                inviteCard(invite)
+            }
+        }
     }
 }
 

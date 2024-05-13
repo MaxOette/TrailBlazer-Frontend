@@ -42,3 +42,8 @@ data class Friend(
     val stats: Float
 )
 
+data class Invite(
+    val uuid: String,
+    val email: String,
+    val acceptedAt: String,
+)

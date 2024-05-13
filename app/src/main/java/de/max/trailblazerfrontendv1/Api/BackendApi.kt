@@ -71,7 +71,7 @@ interface FriendIdService{
 
 interface FriendInviteService{
     @GET("/api/v1/invites")
-    suspend fun getFriendInvites() : ResponseBody
+    suspend fun getFriendInvites() : List<Invite>
 }
 
 interface ProfilePictureService{
