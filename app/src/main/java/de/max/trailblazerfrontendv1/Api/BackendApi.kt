@@ -72,12 +72,35 @@ interface VisitService {
     ) : ResponseBody
 }
 
-interface FriendService{
+interface FriendIdService{
     @GET("/api/v1/friends")
-    suspend fun getFriends() : Response
+    suspend fun getFriendsId() : List<Friend>
 }
 
-object FriendApi{
+interface FriendInviteService{
+    @GET("/api/v1/invites")
+    suspend fun getFriendInvites() : ResponseBody
+}
+
+interface ProfilePictureService{
+    @GET("/api/v1/files/profile/picture")
+    suspend fun getProfilePicture(): ResponseBody
+}
+
+interface  AddFriendService{
+    @POST("/api/v1/friend/email/{email}")
+    suspend fun addFriend(@Path("email") email: String): ResponseBody
+}
+
+interface UpdateFriendService{
+    @POST("/api/v1/friend/update")
+    suspend fun acceptFriend(
+        @Query("accepted") accepted: Boolean,
+        @Query("uuid") uuid: String
+    ): ResponseBody
+}
+
+object UpdateFriendApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
         .retryOnConnectionFailure(true)
@@ -85,9 +108,59 @@ object FriendApi{
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(FriendApi.httpClient)
+        .client(UpdateFriendApi.httpClient)
         .build()
-    val friendService: FriendService = retrofit.create(FriendService::class.java)
+    val updateFriendService : UpdateFriendService = retrofit.create(UpdateFriendService::class.java)
+}
+
+object AddFriendApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(AddFriendApi.httpClient)
+        .build()
+    val addFriendService : AddFriendService = retrofit.create(AddFriendService::class.java)
+}
+
+object FriendInviteApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(FriendInviteApi.httpClient)
+        .build()
+    val friendInviteService: FriendInviteService = retrofit.create(FriendInviteService::class.java)
+}
+object ProfilePictureApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(ProfilePictureApi.httpClient)
+        .build()
+    val profilePictureService: ProfilePictureService = retrofit.create(ProfilePictureService::class.java)
+}
+object FriendIdApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(FriendIdApi.httpClient)
+        .build()
+    val friendIdService: FriendIdService = retrofit.create(FriendIdService::class.java)
 }
 
 object TileApi{
