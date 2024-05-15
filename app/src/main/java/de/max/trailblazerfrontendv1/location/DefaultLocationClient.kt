@@ -12,6 +12,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import de.max.trailblazerfrontendv1.Api.VisitApi
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import kotlinx.coroutines.channels.awaitClose
@@ -51,7 +52,16 @@ class DefaultLocationClient(
                 override fun onLocationResult(result: LocationResult) {
                     super.onLocationResult(result)
                     result.locations.lastOrNull()?.let {location ->
-                        launch {send(location)}
+                        launch {
+                            send(location)
+                            if (GeneralConstants.gpsTrackingEnabled) {
+                                try {
+                                    VisitApi.visitService.postTile(location.latitude, location.longitude)
+                                } catch (e : Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        }
                         UserConstants.userLat = location.latitude
                         UserConstants.userLng = location.longitude
                         cameraPositionUpdater.updateCameraPosition(

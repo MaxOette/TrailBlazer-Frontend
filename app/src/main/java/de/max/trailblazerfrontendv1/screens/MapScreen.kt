@@ -97,13 +97,13 @@ fun MapScreen(
         viewModel.cameraPosition.collect { newPosition ->
             //Neue Kachel aufecken
             //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
-            if (GeneralConstants.gpsTrackingEnabled) {
-                try {
-                    VisitApi.visitService.postTile(newPosition.target.latitude, newPosition.target.longitude)
-                } catch (e : Exception) {
-                    e.printStackTrace()
-                }
-            }
+            //if (GeneralConstants.gpsTrackingEnabled) {
+            //    try {
+            //        VisitApi.visitService.postTile(newPosition.target.latitude, newPosition.target.longitude)
+            //    } catch (e : Exception) {
+            //        e.printStackTrace()
+            //    }
+            //}
             //Kamera zur aktuellen Position teleportieren
             if (!GeneralConstants.manualSearch) {
                 cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))

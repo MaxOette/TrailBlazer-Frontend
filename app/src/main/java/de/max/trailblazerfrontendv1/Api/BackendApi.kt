@@ -72,6 +72,11 @@ interface VisitService {
     ) : ResponseBody
 }
 
+interface StatsService {
+    @GET("api/v1/stats")
+    suspend fun getStats()
+}
+
 interface FriendIdService{
     @GET("/api/v1/friends")
     suspend fun getFriendsId() : List<Friend>
@@ -193,6 +198,22 @@ object VisitApi {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     val visitService:VisitService= retrofit.create(VisitService::class.java)
+}
+
+object StatsApi {
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .client(httpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val statsService:StatsService= retrofit.create(StatsService::class.java)
 }
 
 object LogoutAPI{
