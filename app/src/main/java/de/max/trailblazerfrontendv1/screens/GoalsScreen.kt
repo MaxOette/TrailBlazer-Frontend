@@ -29,21 +29,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.max.trailblazerfrontendv1.Api.StatsApi
-import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import de.max.trailblazerfrontendv1.Api.Achievement
+import de.max.trailblazerfrontendv1.Api.AchievementsApi
+import de.max.trailblazerfrontendv1.Api.CountyStats
 
 @Composable
 fun GoalsScreen() {
-    LaunchedEffect (key1 = Unit) {
-            try {
-                val response = StatsApi.statsService.getStats()
-                val statsData = response
-                println(statsData)
-
-            } catch (e: Error) {
-                println(e.message)
-            }
-    }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -58,9 +55,27 @@ fun GoalsScreen() {
                 fontSize = 36.sp
             )
             Spacer(modifier = Modifier.height(24.dp))
+            var achievements by remember { mutableStateOf(emptyList<Achievement>()) }
+
+            LaunchedEffect(key1 = Unit) {
+                try {
+                    achievements = AchievementsApi.achievementService.getAchievements()
+                    achievements.forEach { achievement ->
+                        if (achievement.achieved) {
+                            achievement.imageResource = GeneralConstants.applicationContext.resources.getIdentifier("check", "drawable", GeneralConstants.applicationContext.packageName)
+                        } else {
+                            achievement.imageResource = GeneralConstants.applicationContext.resources.getIdentifier("wrong", "drawable", GeneralConstants.applicationContext.packageName)
+                        }
+                    }
+                    achievements = achievements.sortedWith(compareByDescending<Achievement> { it.achieved }.thenBy { it.title })
+                    println(achievements)
+                } catch (e: Error) {
+                    println(e.message)
+                }
+            }
 
             LazyColumn {
-                item {
+                itemsIndexed(achievements) { index, achievement ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -74,7 +89,7 @@ fun GoalsScreen() {
                                 .padding(16.dp)
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.trail_blazer_app_icon),
+                                painter = painterResource(achievement.imageResource),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(48.dp)
@@ -83,16 +98,8 @@ fun GoalsScreen() {
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             Column {
-                                Text(text = "Entdecke deine Karte", fontWeight = FontWeight.Bold)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                if (1 != null) {
-                                    LinearProgressIndicator(
-                                        progress = 1f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(text = "Lade dir TrailBlazer herunter!", fontWeight = FontWeight.Bold)
+                                Text(text = achievement.title, fontWeight = FontWeight.Bold)
+                                Text(text = achievement.description)
                             }
                         }
                     }

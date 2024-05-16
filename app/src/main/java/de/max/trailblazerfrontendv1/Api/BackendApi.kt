@@ -77,6 +77,11 @@ interface StatsService {
     suspend fun getStats() : List<CountyStats>
 }
 
+interface AchievementService {
+    @GET("api/v1/achievements")
+    suspend fun getAchievements() : List<Achievement>
+}
+
 interface FriendIdService{
     @GET("/api/v1/friends")
     suspend fun getFriendsId() : List<Friend>
@@ -214,6 +219,22 @@ object StatsApi {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
     val statsService:StatsService= retrofit.create(StatsService::class.java)
+}
+
+object AchievementsApi {
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .client(httpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val achievementService:AchievementService = retrofit.create(AchievementService::class.java)
 }
 
 object LogoutAPI{

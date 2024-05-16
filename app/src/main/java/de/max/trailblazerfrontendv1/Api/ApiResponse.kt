@@ -45,6 +45,13 @@ data class Friend(
 data class CountyStats(
     var kuerzel: String,
     val percentage: Float,
-    var imageResource: Int,
+    var imageResource: Int
+)
+
+data class Achievement(
+    val title: String,
+    val description: String,
+    val achieved: Boolean,
+    var imageResource: Int
 )
 
