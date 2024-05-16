@@ -202,7 +202,7 @@ fun MapScreen(
                 try {
                     polygonData.value = TileApi.tileService.getTiles(
                         cameraPosition.position.target.latitude,
-                        cameraPosition.position.target.longitude, /* cameraPosition.position.zoom.toInt() */
+                        cameraPosition.position.target.longitude,
                         GeneralConstants.volatileZoom.toInt().toByte()
                     ).filter { (it.opacity == 0) }
                         .map {

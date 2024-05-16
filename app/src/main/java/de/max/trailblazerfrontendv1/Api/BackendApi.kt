@@ -74,7 +74,7 @@ interface VisitService {
 
 interface StatsService {
     @GET("api/v1/stats")
-    suspend fun getStats()
+    suspend fun getStats() : List<CountyStats>
 }
 
 interface FriendIdService{
