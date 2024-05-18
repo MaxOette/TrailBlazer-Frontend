@@ -1,7 +1,5 @@
 package de.max.trailblazerfrontendv1.map
 
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
