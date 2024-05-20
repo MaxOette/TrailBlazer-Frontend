@@ -42,6 +42,12 @@ data class Friend(
     val stats: Float
 )
 
+data class Invite(
+    val uuid:String,
+    val email: String,
+    val sendAt: String
+)
+
 data class CountyStats(
     var kuerzel: String,
     val percentage: Float,

@@ -22,6 +22,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -29,6 +32,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -53,17 +57,20 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.max.trailblazerfrontendv1.Api.AddFriendApi
+import de.max.trailblazerfrontendv1.Api.DeleteFriendApi
 import de.max.trailblazerfrontendv1.Api.Friend
 import de.max.trailblazerfrontendv1.Api.FriendIdApi
 import de.max.trailblazerfrontendv1.Api.FriendInviteApi
 import de.max.trailblazerfrontendv1.Api.Invite
 
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
+import de.max.trailblazerfrontendv1.Api.UpdateFriendApi
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.location.LocationService
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -77,15 +84,28 @@ fun ProfileScreen() {
     var invites by remember { mutableStateOf(listOf<Invite>())}
     val coroutineScope = rememberCoroutineScope()
 
+    suspend fun fetchFriendsAndInvites() {
+        try {
+            friends = FriendIdApi.friendIdService.getFriendsId()
+            invites = listOf()
+            val fetchedInvites = FriendInviteApi.friendInviteService.getFriendInvites()
+
+
+            if (fetchedInvites.isEmpty()) {
+                invites = listOf() // Set to an empty list if no pending invites
+            } else {
+                invites = fetchedInvites
+            }
+
+
+        } catch (e: Exception) {
+            println("Error fetching friends and invites: ${e.localizedMessage}")
+        }
+    }
+
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            try {
-                // Assuming the API returns the list directly as parsed JSON
-                friends = FriendIdApi.friendIdService.getFriendsId()
-                invites = FriendInviteApi.friendInviteService.getFriendInvites()
-            } catch (e: Exception) {
-                println("Error fetching friends: ${e.localizedMessage}")
-            }
+            fetchFriendsAndInvites()
         }
     }
 
@@ -111,7 +131,6 @@ fun ProfileScreen() {
             AddFriendDialog(
                 showDialog = showDialog,
                 onDismissRequest = { showDialog = false },
-                invites = invites,
                 onSubmit = { email ->
                     GlobalScope.launch(Dispatchers.IO) {
                         try {
@@ -124,8 +143,11 @@ fun ProfileScreen() {
             )
         }
         LazyColumn {
+            items(invites) {invite ->
+                InviteCard(invite) { fetchFriendsAndInvites() }
+            }
             items(friends) { friend ->
-                friendCard(friend)
+                friendCard(friend) { fetchFriendsAndInvites() }
             }
         }
     }
@@ -210,44 +232,71 @@ data class ExampleFriend(
 )
 
 @Composable
-fun inviteCard(invite: Invite){
-    var email: String = invite.email
-    var uuid = invite.uuid
+fun InviteCard(invite: Invite, onInviteHandled: suspend () -> Unit) {
+    val email: String = invite.email
+    val uuid = invite.uuid
 
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
         modifier = Modifier
-            .height(120.dp)
             .fillMaxWidth()
             .padding(8.dp)
-    ){
-        Row(){
-            Text(email)
-            Button(
-                onClick = {
-
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = email,
+                modifier = Modifier.weight(1f),
+            )
+            Row {
+                Button(
+                    onClick = {
+                        GlobalScope.launch(Dispatchers.IO) {
+                            try {
+                                UpdateFriendApi.updateFriendService.acceptFriend(true, uuid)
+                                onInviteHandled()
+                            } catch (e: Exception) {
+                                println("Error accepting invite: ${e.message}")
+                            }
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = "Accept")
+                    Spacer(modifier = Modifier.width(4.dp))
                 }
-            ){
-                Text("accept")
-            }
-            Button(
-                onClick = {
-
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        GlobalScope.launch(Dispatchers.IO) {
+                            try {
+                                UpdateFriendApi.updateFriendService.acceptFriend(false, uuid)
+                                onInviteHandled()
+                            } catch (e: Exception) {
+                                println("Error declining invite: ${e.message}")
+                            }
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Decline")
+                    Spacer(modifier = Modifier.width(4.dp))
                 }
-            ){
-                Text("decline")
             }
         }
     }
 }
 
 @Composable
-fun friendCard(friend: Friend) {
-    var email= friend.email
-    var progress = friend.stats
-    var uuid = friend.uuid
+fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
+    val email = friend.email
+    val progress = friend.stats
+    val uuid = friend.uuid
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -264,21 +313,44 @@ fun friendCard(friend: Friend) {
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween // Ensure space between email and delete button
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_pic),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = email,
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.profile_pic),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = email,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        GlobalScope.launch(Dispatchers.IO) {
+                            try {
+                                DeleteFriendApi.deleteFriendService.deleteFriend(uuid)
+                                onDeleteFriendHandled()
+                            } catch (e: Exception) {
+                                println("Error declining invite: ${e.message}")
+                            }
+                        }
+                }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete friend",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
@@ -352,7 +424,6 @@ fun AddFriendDialog(
     showDialog: Boolean,
     onDismissRequest: () -> Unit,
     onSubmit: (String) -> Unit,
-    invites: List<Invite>
 ) {
     if (showDialog) {
         var email by remember { mutableStateOf("") }  // Declare email here so it's shared
@@ -385,12 +456,6 @@ fun AddFriendDialog(
             }
 
         )
-        Text("Invites")
-        LazyColumn {
-            items(invites) { invite ->
-                inviteCard(invite)
-            }
-        }
     }
 }
 

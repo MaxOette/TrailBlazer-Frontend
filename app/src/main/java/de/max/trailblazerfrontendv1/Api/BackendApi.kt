@@ -11,6 +11,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -105,9 +106,29 @@ interface  AddFriendService{
 interface UpdateFriendService{
     @POST("/api/v1/friend/update")
     suspend fun acceptFriend(
-        @Query("accepted") accepted: Boolean,
+        @Query("accept") accept: Boolean,
         @Query("uuid") uuid: String
-    ): ResponseBody
+    ): List<Friend>
+}
+
+interface DeleteFriendService {
+    @DELETE("api/v1/friend/{friendID}")
+    suspend fun deleteFriend(
+        @Path("friendID") friendID: String
+    ) : List<Friend>
+}
+
+object DeleteFriendApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(DeleteFriendApi.httpClient)
+        .build()
+    val deleteFriendService : DeleteFriendService = retrofit.create(DeleteFriendService::class.java)
 }
 
 object UpdateFriendApi{
