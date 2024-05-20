@@ -85,9 +85,7 @@ import kotlinx.coroutines.withContext
 fun LoginForm(onRegisterClicked: () -> Unit) {
     Surface {
 
-        var credentials by remember {
-            mutableStateOf(Credentials())
-        }
+        var credentials by remember { mutableStateOf(Credentials()) }
         val context = LocalContext.current
 
         Text(
@@ -126,6 +124,16 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
                     submit = { checkCredentials(credentials, context) },
                     modifier = Modifier.fillMaxWidth()
                 )
+                Text(text = buildAnnotatedString {
+                    append("Passwort vergessen? ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append("Zurücksetzen")
+                    }
+                }, modifier = Modifier
+                    .padding(top = 8.dp)
+                    .clickable {
+                    }
+                )
                 /*
                 Spacer(modifier = Modifier.height(16.dp))
                 LabeledCheckbox(
@@ -146,13 +154,14 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
+                /*
                 Button(
                     onClick = { adminLogin(context)},
                     shape = RoundedCornerShape(18.dp),
                     modifier = Modifier.fillMaxWidth()
                 ){
                     Text("Admin")
-                }
+                } */
             }
             Text(
                 text = buildAnnotatedString {
@@ -225,7 +234,7 @@ fun checkCredentials(creds: Credentials, context: Context) {
                 }
             }catch(e: Exception){
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Error occured: ${e.message}", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Zugangsdaten inkorrekt: ${e.message}", Toast.LENGTH_SHORT)
                         .show()
                 }
                 println("error occured during login ${e.message}")
@@ -351,28 +360,3 @@ fun PasswordField(
         visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
     )
 }
-
-@Composable
-fun PlusButton() {
-    Button(
-        modifier = Modifier.padding(all = 30.dp),
-        onClick = { println("add 1") }
-    ) {
-        Icon(
-            Icons.Default.PlusOne,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.onPrimary
-        )
-        Text(" hinzufügen")
-    }
-}
-
-@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-@Composable
-fun PlusButtonPreview() {
-    TrailBlazerFrontendV1Theme(isSystemInDarkTheme() || GeneralConstants.forceDarkMode) {
-        PlusButton()
-    }
-}
-
-
