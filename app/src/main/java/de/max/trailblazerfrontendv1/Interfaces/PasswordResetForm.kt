@@ -84,7 +84,7 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun PasswordResetForm(onBackClicked: () -> Unit) {
-    Surface {
+    Surface (modifier =  Modifier.fillMaxSize()) {
 
         var credentials by remember { mutableStateOf(Credentials()) }
         val context = LocalContext.current

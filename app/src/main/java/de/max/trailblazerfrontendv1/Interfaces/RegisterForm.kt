@@ -168,7 +168,7 @@ fun checkRegisterCredentials(creds: RegisterCredentials, context: Context) {
             }
         }
     } else {
-        Toast.makeText(context, "Bitte fülle die Felder aus", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Bitte fülle alle Felder aus", Toast.LENGTH_SHORT).show()
     }
 }
 
