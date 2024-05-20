@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.MessageStrings
 import de.max.trailblazerfrontendv1.location.LocationService
 
@@ -35,25 +36,20 @@ fun GpsTrackingDisabledDialog(
                 Text(text = MessageStrings.gpsTrackingDisabledDialogText)
             },
             onDismissRequest = {
+                /*
                 Intent(applicationContext, LocationService::class.java).apply {
                     action = LocationService.ACTION_STOP
                     applicationContext.startService(this)
-                }
+                } */
+                GeneralConstants.dialogAck = true
                 showDialog.value = false
             },
             confirmButton = {
-                /*
-                TextButton(
-                    onClick = {
-                        showDialog.value = false
-                    }
-                ) {
-                    Text(MessageStrings.gpsTrackingDisabledDialogConfirm)
-                } */
             },
             dismissButton = {
                 TextButton(
                     onClick = {
+                        GeneralConstants.dialogAck = true
                         showDialog.value = false
                     }
                 ) {

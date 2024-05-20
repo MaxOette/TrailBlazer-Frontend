@@ -253,6 +253,7 @@ fun GPSTrackingSwitch(applicationContext: Context) {
             checked = it
             GeneralConstants.gpsTrackingEnabled = it
             if (it) {
+                GeneralConstants.dialogAck = false
                 Intent(applicationContext, LocationService::class.java).apply {
                     action = LocationService.ACTION_START
                     applicationContext.startService(this)

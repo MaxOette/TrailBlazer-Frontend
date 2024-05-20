@@ -47,8 +47,7 @@ fun MapScreen(
         }
         GeneralConstants.fetchingGps = true;
     }
-    if (!GeneralConstants.gpsTrackingEnabled) {
-        GeneralConstants.fetchingGps = false;
+    if (!GeneralConstants.fetchingGps && !GeneralConstants.dialogAck) {
         GpsTrackingDisabledDialog(mutableStateOf(true), applicationContext)
     }
 

@@ -12,6 +12,7 @@ class GeneralConstants {
         lateinit var applicationContext: Context
         var fetchingGps : Boolean = false
         var gpsTrackingEnabled : Boolean = true
+        var dialogAck : Boolean = false
         var forceDarkMode : Boolean = false
         var appNavBar : Boolean = false
         var mapType : MapType = MapType.TERRAIN
