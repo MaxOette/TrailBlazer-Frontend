@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.DarkMode
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -251,6 +253,7 @@ fun GPSTrackingSwitch(applicationContext: Context) {
             checked = it
             GeneralConstants.gpsTrackingEnabled = it
             if (it) {
+                GeneralConstants.dialogAck = false
                 Intent(applicationContext, LocationService::class.java).apply {
                     action = LocationService.ACTION_START
                     applicationContext.startService(this)
@@ -319,7 +322,9 @@ fun MapSettingsCard(applicationContext: Context, dataStore: DataStore<Preference
             // Erste Spalte
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(painter = painterResource(id = R.drawable.kartenstil_flat), contentDescription = "Kartenstil Flach", modifier = Modifier.size(80.dp))
+                Image(painter = painterResource(id = R.drawable.kartenstil_flat), contentDescription = "Kartenstil Flach", modifier = Modifier.size(80.dp).clip(
+                    RoundedCornerShape(8.dp)
+                ))
                 Text(text = "Flach")
                 RadioButton(selected = selectedOption.value == 1, onClick = {
                     selectedOption.intValue = 1
@@ -331,7 +336,9 @@ fun MapSettingsCard(applicationContext: Context, dataStore: DataStore<Preference
             // Zweite Spalte
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(painter = painterResource(id = R.drawable.kartenstil_terrain), contentDescription = "Kartenstil Gelände", modifier = Modifier.size(80.dp))
+                Image(painter = painterResource(id = R.drawable.kartenstil_terrain), contentDescription = "Kartenstil Gelände", modifier = Modifier.size(80.dp).clip(
+                    RoundedCornerShape(8.dp)
+                ))
                 Text(text = "Gelände")
                 RadioButton(selected = selectedOption.value == 3, onClick = {
                     selectedOption.intValue = 3
@@ -344,7 +351,9 @@ fun MapSettingsCard(applicationContext: Context, dataStore: DataStore<Preference
             // Dritte Spalte
             Column(verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(painter = painterResource(id = R.drawable.kartenstil_sattelite), contentDescription = "Kartenstil Satellit", modifier = Modifier.size(80.dp))
+                Image(painter = painterResource(id = R.drawable.kartenstil_sattelite), contentDescription = "Kartenstil Satellit", modifier = Modifier.size(80.dp).clip(
+                    RoundedCornerShape(8.dp)
+                ))
                 Text(text = "Satellit")
                 RadioButton(selected = selectedOption.value == 4, onClick = {
                     selectedOption.intValue = 4

@@ -10,8 +10,17 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ShareLocation
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,7 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import de.max.trailblazerfrontendv1.Api.AuthStatusApi
 import de.max.trailblazerfrontendv1.Api.HealthApi
 import de.max.trailblazerfrontendv1.Api.RefreshApi
@@ -36,7 +49,6 @@ import kotlinx.coroutines.withContext
 
 //@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GeneralConstants.applicationContext = applicationContext
@@ -51,33 +63,83 @@ class MainActivity : ComponentActivity() {
         )
 
         setContent {
-            val darkModeEnabled = dataStoreReader(applicationContext = applicationContext, key = "dark_mode", initial = false)
+            val darkModeEnabled = dataStoreReader(
+                applicationContext = applicationContext,
+                key = "dark_mode",
+                initial = false
+            )
             TrailBlazerFrontendV1Theme(isSystemInDarkTheme() || darkModeEnabled) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    //NavigateToLoginButton()
-                    //CheckHealthButton()
-                    //RefreshButton()
-                    //AuthButton()
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        MapScreen()
-                    }
-
-                }
-                    AppNavigation(GeneralConstants.applicationContext)
-                    GeneralConstants.appNavBar = true
+                ApplicationContent()
             }
         }
     }
 
+    @OptIn(ExperimentalPermissionsApi::class)
     @Composable
-    fun AuthButton(){
+    fun ApplicationContent() {
+        val locationFinePermissionState = rememberPermissionState(
+            permission = Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        val locationCoarsePermissionState = rememberPermissionState(
+            permission = Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        if (locationFinePermissionState.status.isGranted || locationCoarsePermissionState.status.isGranted) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    MapScreen()
+                }
+            }
+            AppNavigation(GeneralConstants.applicationContext)
+            GeneralConstants.appNavBar = true
+        } else {
+            NoPermissionScreen()
+        }
+
+    }
+
+    private @Composable
+    fun NoPermissionScreen() {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        Icons.Default.ShareLocation,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(64.dp)
+                    )
+                    Spacer(modifier = Modifier.width(32.dp))
+                    Text("Damit du TrailBlazer verwenden kannst, musst du der App den Zugriff auf deine GPS-Positionsdaten gestatten.")
+                }
+            }
+        }
+
+    }
+
+
+    @Composable
+    fun AuthButton() {
         var context = LocalContext.current
         Button(
             onClick = {
@@ -88,21 +150,22 @@ class MainActivity : ComponentActivity() {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(context, response.string(), Toast.LENGTH_SHORT).show()
                         }
-                    }catch(e: Exception){
+                    } catch (e: Exception) {
                         println("Exception during auth status request: ${e.message}")
                     }
                 }
             }
-        ){
+        ) {
             Text("Check Auth Status")
         }
     }
+
     @Composable
-    fun RefreshButton(){
+    fun RefreshButton() {
 
         Button(
             onClick = {
-                GlobalScope.launch(Dispatchers.IO){
+                GlobalScope.launch(Dispatchers.IO) {
                     try {
                         val response = RefreshApi.refreshService.requestRefreshToken()
                         UserConstants.refreshToken = response.string()
@@ -112,53 +175,11 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-        ){
+        ) {
             Text("request refresh Token")
         }
     }
-    @Composable
-    fun CheckHealthButton() {
-        var health: Boolean = false
-        var context = LocalContext.current
-        Button(
-            onClick = {
-                GlobalScope.launch(Dispatchers.IO) {
-                    val response = HealthApi.healthService.getHealth()
-                    health = response
-                    withContext(Dispatchers.Main) {
-                        generateToast(health, context)
-                    }
-                }
-
-
-            }
-        )
-        {
-            Text("check health")
-        }
-    }
-
-    fun generateToast(health: Boolean, context: Context){
-
-        if(health == true) {
-            Toast.makeText(context, "Hähnchen mit Brocolli", Toast.LENGTH_SHORT).show()
-        }else{
-            Toast.makeText(context, "Big Mac", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    @Composable
-    fun NavigateToLoginButton() {
-        val context = LocalContext.current
-        Button(
-            onClick = {
-                val intent = Intent(context, LoginActivity::class.java)
-                context.startActivity(intent)
-            }
-        ) {
-            Text("Go to Login")
-        }
-
-    }
 }
+
+
 

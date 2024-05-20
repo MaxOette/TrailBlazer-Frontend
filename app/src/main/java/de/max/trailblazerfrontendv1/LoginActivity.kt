@@ -18,7 +18,7 @@ class LoginActivity : ComponentActivity() {
         setContent {
             val darkModeEnabled = dataStoreReader(applicationContext = applicationContext, key = "dark_mode", initial = false)
             TrailBlazerFrontendV1Theme(isSystemInDarkTheme() || darkModeEnabled) {
-                LoginForm(onRegisterClicked = { navigateToRegisterActivity() })
+                LoginForm(onRegisterClicked = { navigateToRegisterActivity() }, onPwResetClicked = {navigateToPwResetActivity()})
             }
         }
     }
@@ -27,19 +27,9 @@ class LoginActivity : ComponentActivity() {
         val intent = Intent(this, RegisterActivity::class.java)
         startActivity(intent)
     }
-}
-@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-@Composable
-fun LoginPreview() {
-    TrailBlazerFrontendV1Theme(isSystemInDarkTheme()) {
-        LoginForm(onRegisterClicked = { })
-    }
-}
 
-@Preview(showBackground = true, device = "id:Nexus One", showSystemUi = true)
-@Composable
-fun LoginPreviewDark() {
-    TrailBlazerFrontendV1Theme(darkTheme = true) {
-        LoginForm(onRegisterClicked = { })
+    fun navigateToPwResetActivity() {
+        val intent = Intent(this, ResetPasswordActivity::class.java)
+        startActivity(intent)
     }
 }

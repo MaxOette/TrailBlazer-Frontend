@@ -42,8 +42,16 @@ data class Friend(
     val stats: Float
 )
 
-data class Invite(
-    val uuid: String,
-    val email: String,
-    val acceptedAt: String,
+data class CountyStats(
+    var kuerzel: String,
+    val percentage: Float,
+    var imageResource: Int
 )
+
+data class Achievement(
+    val title: String,
+    val description: String,
+    val achieved: Boolean,
+    var imageResource: Int
+)
+

@@ -1,8 +1,6 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    //id("com.google.dagger.hilt.android") version "2.44"
-    //kotlin("kapt")
 }
 
 android {
@@ -57,10 +55,11 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:4.3.3")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
 
-    //Hilt
-    //implementation("com.google.dagger:hilt-android:2.44")
+    //Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+
+    //Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    //kapt("com.google.dagger:hilt-android-compiler:2.44")
 
     //NavigationBar
     implementation("androidx.compose.ui:ui:1.6.5")

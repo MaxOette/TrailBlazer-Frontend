@@ -16,6 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import de.max.trailblazerfrontendv1.Interfaces.PasswordResetForm
+import de.max.trailblazerfrontendv1.screens.GoalsScreen
 import de.max.trailblazerfrontendv1.screens.MapScreen
 import de.max.trailblazerfrontendv1.screens.ProfileScreen
 import de.max.trailblazerfrontendv1.screens.Screens
@@ -66,6 +68,9 @@ fun AppNavigation(applicationContext: Context) {
             }
             composable(route = Screens.StatsScreen.name) {
                 StatsScreen()
+            }
+            composable(route = Screens.GoalsScreen.name) {
+                GoalsScreen()
             }
             composable(route = Screens.ProfileScreen.name) {
                 ProfileScreen()

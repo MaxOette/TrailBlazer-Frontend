@@ -51,7 +51,7 @@ class LocationService : Service() {
         val gpsNotification = NotificationCompat.Builder(this, "location")
             .setContentTitle(MessageStrings.gpsNotificationTitle)
             .setContentText(MessageStrings.gpsNotificationText)
-            .setSmallIcon(R.drawable.trail_blazer_app_icon_32)
+            .setSmallIcon(R.drawable.trailblazer_app_icon_32)
             .setOngoing(true)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -73,7 +73,7 @@ class LocationService : Service() {
     private fun stop() {
         GeneralConstants.fetchingGps = false
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            stopForeground(STOP_FOREGROUND_DETACH)
+            stopForeground(STOP_FOREGROUND_REMOVE)
         } else {
             stopForeground(true)
         }
@@ -82,7 +82,15 @@ class LocationService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        stop()
         serviceScope.cancel()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancelAll()
+        stop()
+        super.onTaskRemoved(rootIntent)
     }
 
     companion object {

@@ -1,5 +1,6 @@
 package de.max.trailblazerfrontendv1.screens
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +10,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
@@ -19,8 +22,6 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
 import com.google.maps.android.compose.rememberCameraPositionState
 import de.max.trailblazerfrontendv1.Api.TileApi
-import de.max.trailblazerfrontendv1.Api.TileData
-import de.max.trailblazerfrontendv1.Api.VisitApi
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.Util.ViewModelHolder
@@ -46,27 +47,26 @@ fun MapScreen(
         }
         GeneralConstants.fetchingGps = true;
     }
-    if (!GeneralConstants.gpsTrackingEnabled) {
-        GeneralConstants.fetchingGps = false;
+    if (!GeneralConstants.fetchingGps && !GeneralConstants.dialogAck) {
         GpsTrackingDisabledDialog(mutableStateOf(true), applicationContext)
     }
 
     ViewModelHolder.ViewModelHolderObject.mapsViewModel = viewModel
 
 
-    val smallPolygonLocations: MutableList<TileData> = mutableListOf()
+    //val smallPolygonLocations: MutableList<TileData> = mutableListOf()
 
-    var visitedList = UserConstants.testTileData.filter { (it.opacity == 0) }
-        .map {
-            listOf(
-                LatLng(it.posUpperRight[0], it.posUpperRight[1]),
-                LatLng(it.posLowerRight[0], it.posLowerRight[1]),
-                LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
-                LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
-            )
-        }
+    //UserConstants.testTileData.filter { (it.opacity == 0) }
+    //    .map {
+    //        listOf(
+    //            LatLng(it.posUpperRight[0], it.posUpperRight[1]),
+    //            LatLng(it.posLowerRight[0], it.posLowerRight[1]),
+    //            LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
+    //            LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
+    //        )
+    //    }
 
-    val germanyLocations = listOf(
+    val germanyMapBounds = listOf(
         LatLng(47.270111, 5.86633), //südwest
         LatLng(47.270111, 15.04473), //südost
         LatLng(55.092927, 15.04473), //nordost
@@ -74,13 +74,13 @@ fun MapScreen(
     )
 
 
-    val holeList = listOf(
-        smallPolygonLocations
-    )
+    //val holeList = listOf(
+    //    smallPolygonLocations
+    //)
 
-    val uiSettings = remember {
-        MapUiSettings(myLocationButtonEnabled = true, zoomControlsEnabled = false)
-    }
+    //val uiSettings = remember {
+    //    MapUiSettings(myLocationButtonEnabled = true, zoomControlsEnabled = false)
+    //}
 
     val cameraPosition = rememberCameraPositionState {
         CameraPosition.fromLatLngZoom(
@@ -95,15 +95,6 @@ fun MapScreen(
 
     LaunchedEffect(Unit) {
         viewModel.cameraPosition.collect { newPosition ->
-            //Neue Kachel aufecken
-            //TODO: Bei der Anfrage um eine Kachel aufzudecken immer erst prüfen, ob gpsTracking in den Settings enabled ist!
-            if (GeneralConstants.gpsTrackingEnabled) {
-                try {
-                    VisitApi.visitService.postTile(newPosition.target.latitude, newPosition.target.longitude)
-                } catch (e : Exception) {
-                    e.printStackTrace()
-                }
-            }
             //Kamera zur aktuellen Position teleportieren
             if (!GeneralConstants.manualSearch) {
                 cameraPosition.animate(CameraUpdateFactory.newCameraPosition(newPosition))
@@ -134,7 +125,7 @@ fun MapScreen(
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         properties = viewModel.state.properties,
-        uiSettings = uiSettings,
+        uiSettings = MapUiSettings(myLocationButtonEnabled = true, zoomControlsEnabled = false),
         cameraPositionState = cameraPosition,
         onMyLocationButtonClick = {
             GeneralConstants.manualSearch = false
@@ -166,7 +157,7 @@ fun MapScreen(
         }
     ) {
         Polygon(
-            points = germanyLocations,
+            points = germanyMapBounds,
             clickable = false,
             fillColor = Color.DarkGray.copy(alpha = 0.8f),
             geodesic = false, //false = Krümmung der Erdoberfläche wird nicht beachtet
@@ -202,7 +193,7 @@ fun MapScreen(
                 try {
                     polygonData.value = TileApi.tileService.getTiles(
                         cameraPosition.position.target.latitude,
-                        cameraPosition.position.target.longitude, /* cameraPosition.position.zoom.toInt() */
+                        cameraPosition.position.target.longitude,
                         GeneralConstants.volatileZoom.toInt().toByte()
                     ).filter { (it.opacity == 0) }
                         .map {
