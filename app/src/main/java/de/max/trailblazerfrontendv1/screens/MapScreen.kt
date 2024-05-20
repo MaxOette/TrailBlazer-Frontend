@@ -162,10 +162,10 @@ fun MapScreen(
             fillColor = Color.DarkGray.copy(alpha = 0.8f),
             geodesic = false, //false = Krümmung der Erdoberfläche wird nicht beachtet
             holes = polygonData.value,
-            strokeColor = Color.Magenta,
+            strokeColor = Color.Transparent,
             strokeJointType = JointType.DEFAULT,
             strokePattern = null,
-            strokeWidth = 10f,
+            strokeWidth = 0f,
             tag = "polygon",
             visible = true,
             zIndex = 1f,

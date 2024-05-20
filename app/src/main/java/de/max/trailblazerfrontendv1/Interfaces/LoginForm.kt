@@ -121,6 +121,8 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 PasswordField(
+                    credentials,
+                    context,
                     value = credentials.pwd,
                     onChange = { data -> credentials = credentials.copy(pwd = data) },
                     submit = { checkCredentials(credentials, context) },
@@ -312,6 +314,8 @@ fun LoginField(
 
 @Composable
 fun PasswordField(
+    creds: Credentials,
+    context: Context,
     value: String,
     onChange: (String) -> Unit,
     submit: () -> Unit,
@@ -353,7 +357,10 @@ fun PasswordField(
             keyboardType = KeyboardType.Password
         ),
         keyboardActions = KeyboardActions(
-            onDone = { keyboardController?.hide() }
+            onDone = {
+                keyboardController?.hide()
+                checkCredentials(creds, context)
+            }
         ),
         //placeholder = { Text(placeholder) },
         label = { Text(label) },

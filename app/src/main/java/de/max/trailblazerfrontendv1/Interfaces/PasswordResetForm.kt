@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.DoubleArrow
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlusOne
 import androidx.compose.material.icons.filled.Send
@@ -83,36 +84,169 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun PasswordResetForm(onBackClicked: () -> Unit) {
-    Surface {
+    Surface (modifier =  Modifier.fillMaxSize()) {
 
         var credentials by remember { mutableStateOf(Credentials()) }
         val context = LocalContext.current
 
-        Text(
-            text = "Passwort zurücksetzen",
-            modifier = Modifier
-                .padding(all = 30.dp)
-                .padding(top = 70.dp),
-            fontWeight = FontWeight.Bold,
-            fontSize = 36.sp
-        )
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 30.dp)
+        Column(modifier = Modifier
+            .padding(top = 30.dp)
+            .padding(all = 30.dp)) {
 
-        ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+            //Reset-Code-Abschnitt
+            Text(
+                text = "Code anfordern",
+                fontWeight = FontWeight.Bold,
+                fontSize = 36.sp
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Für welchen Account soll das Passwort zurückgesetzt werden?")
+            Spacer(modifier = Modifier.height(16.dp))
+            ResetPwEmailField(value = "", onChange = {}, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { },
+                enabled = credentials.isNotEmpty(),
+                shape = RoundedCornerShape(18.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                //TODO impl
+                Text("Reset-Code anfordern")
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            //Passwort-Setzen-Abschnitt
+            Text(
+                text = "Passwort ändern",
+                fontWeight = FontWeight.Bold,
+                fontSize = 36.sp
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Gib ein neues Passwort an und bestätige es mit dem Reset-Code, den wir an deine E-Mail Adresse gesendet haben.")
+            Spacer(modifier = Modifier.height(16.dp))
+            ResetPwPasswordField(value = "", onChange = {})
+            Spacer(modifier = Modifier.height(16.dp))
+            ResetPwCodeField(value = "", onChange = {}, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { },
+                enabled = credentials.isNotEmpty(),
+                shape = RoundedCornerShape(18.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Neues Passwort setzen")
             }
         }
     }
+}
+
+@Composable
+fun ResetPwEmailField(
+    value: String,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "E-Mail",
+) {
+
+    val focusManager = LocalFocusManager.current
+    val leadingIcon = @Composable {
+        Icon(
+            Icons.Default.Email,
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+    TextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier,
+        leadingIcon = leadingIcon,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        keyboardActions = KeyboardActions(
+            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+        ),
+        label = { Text(label) },
+        singleLine = true,
+        visualTransformation = VisualTransformation.None
+    )
+}
+
+@Composable
+fun ResetPwPasswordField(
+    value: String,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "Neues Passwort",
+) {
+    val focusManager = LocalFocusManager.current
+    var isPasswordVisible by remember { mutableStateOf(false) }
+
+    val leadingIcon = @Composable {
+        Icon(
+            Icons.Default.Lock,
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+    val trailingIcon = @Composable {
+        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+            Icon(
+                if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                contentDescription = "",
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+        }
+    }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+
+    TextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier.fillMaxWidth(),
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next,
+            keyboardType = KeyboardType.Password
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+        ),
+        label = { Text(label) },
+        singleLine = true,
+        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
+    )
+}
+
+@Composable
+fun ResetPwCodeField(
+    value: String,
+    onChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "Reset-Code",
+) {
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val leadingIcon = @Composable {
+        Icon(
+            Icons.Default.Numbers,
+            contentDescription = "",
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+    TextField(
+        value = value,
+        onValueChange = onChange,
+        modifier = modifier,
+        leadingIcon = leadingIcon,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.NumberPassword),
+        keyboardActions = KeyboardActions(
+            onDone = { keyboardController?.hide() }
+        ),
+        label = { Text(label) },
+        singleLine = true,
+        visualTransformation = VisualTransformation.None
+    )
 }

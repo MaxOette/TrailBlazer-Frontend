@@ -49,9 +49,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.max.trailblazerfrontendv1.Api.LoginApi
 import de.max.trailblazerfrontendv1.Api.RegisterApi
 import de.max.trailblazerfrontendv1.Api.RegisterUserData
 import de.max.trailblazerfrontendv1.LoginActivity
+import de.max.trailblazerfrontendv1.MainActivity
+import de.max.trailblazerfrontendv1.Util.UserConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -104,6 +107,8 @@ fun RegisterForm(onLoginClicked: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 RegisterPasswordField(
+                    credentials,
+                    context,
                     value = credentials.pwd,
                     onChange = { data -> credentials = credentials.copy(pwd = data) },
                     submit = { checkRegisterCredentials(credentials, context) },
@@ -148,16 +153,22 @@ fun checkRegisterCredentials(creds: RegisterCredentials, context: Context) {
 
 
         GlobalScope.launch(Dispatchers.IO) {
-            RegisterApi.registerService.postRegisterUser(registerUserData)
-
-            withContext(Dispatchers.Main) {
-                context.startActivity(Intent(context, LoginActivity::class.java))
-                (context as Activity).finish()
+            try {
+                RegisterApi.registerService.postRegisterUser(registerUserData)
+                withContext(Dispatchers.Main) {
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    (context as Activity).finish()
+                }
+            } catch(e: Exception){
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Fehler bei der Registrierung: ${e.message}", Toast.LENGTH_LONG)
+                        .show()
+                }
+                println("error occured during registration ${e.message}")
             }
-
         }
     } else {
-        Toast.makeText(context, "Fehler bei der Registrierung", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Bitte fülle alle Felder aus", Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -229,6 +240,8 @@ fun EmailField(
 
 @Composable
 fun RegisterPasswordField(
+    creds : RegisterCredentials,
+    context: Context,
     value: String,
     onChange: (String) -> Unit,
     submit: () -> Unit,
@@ -269,7 +282,10 @@ fun RegisterPasswordField(
             keyboardType = KeyboardType.Password
         ),
         keyboardActions = KeyboardActions(
-            onDone = { keyboardController?.hide() }
+            onDone = {
+                keyboardController?.hide()
+                checkRegisterCredentials(creds, context)
+            }
         ),
         //placeholder = { Text(placeholder) },
         label = { Text(label) },
