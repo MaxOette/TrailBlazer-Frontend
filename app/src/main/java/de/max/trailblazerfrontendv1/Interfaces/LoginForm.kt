@@ -69,6 +69,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import de.max.trailblazerfrontendv1.Api.LoginApi
 import de.max.trailblazerfrontendv1.Api.LoginUserData
 import de.max.trailblazerfrontendv1.LoginActivity
@@ -82,9 +83,10 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun LoginForm(onRegisterClicked: () -> Unit) {
+fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit) {
     Surface {
 
+        val navController = rememberNavController()
         var credentials by remember { mutableStateOf(Credentials()) }
         val context = LocalContext.current
 
@@ -131,8 +133,7 @@ fun LoginForm(onRegisterClicked: () -> Unit) {
                     }
                 }, modifier = Modifier
                     .padding(top = 8.dp)
-                    .clickable {
-                    }
+                    .clickable { onPwResetClicked() }
                 )
                 /*
                 Spacer(modifier = Modifier.height(16.dp))
