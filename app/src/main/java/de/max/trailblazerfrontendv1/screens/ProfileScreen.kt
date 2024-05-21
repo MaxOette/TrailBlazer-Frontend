@@ -2,8 +2,14 @@ package de.max.trailblazerfrontendv1.screens
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 
@@ -36,6 +42,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +55,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -56,6 +64,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import de.max.trailblazerfrontendv1.Api.AddFriendApi
 import de.max.trailblazerfrontendv1.Api.DeleteFriendApi
 import de.max.trailblazerfrontendv1.Api.Friend
@@ -64,7 +73,9 @@ import de.max.trailblazerfrontendv1.Api.FriendInviteApi
 import de.max.trailblazerfrontendv1.Api.Invite
 
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
+import de.max.trailblazerfrontendv1.Api.ProfilePictureApi
 import de.max.trailblazerfrontendv1.Api.UpdateFriendApi
+import de.max.trailblazerfrontendv1.Api.UploadProfilePictureApi
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
@@ -75,15 +86,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.FileOutputStream
 
 
 @Composable
 fun ProfileScreen() {
     var showDialog by remember { mutableStateOf(false) }
     var friends by remember { mutableStateOf(listOf<Friend>()) }
-    var invites by remember { mutableStateOf(listOf<Invite>())}
+    var invites by remember { mutableStateOf(listOf<Invite>()) }
+    var profilePicture by remember { mutableStateOf<Bitmap?>(null) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
+    //todo figure out why id doesnt update immediately
     suspend fun fetchFriendsAndInvites() {
         try {
             friends = FriendIdApi.friendIdService.getFriendsId()
@@ -103,9 +122,64 @@ fun ProfileScreen() {
         }
     }
 
+    suspend fun fetchProfilePicture(): Bitmap? {
+        return try {
+            val response = ProfilePictureApi.profilePictureService.getProfilePicture()
+            response.byteStream()?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+
+    suspend fun uploadProfilePicture(file: File) {
+        withContext(Dispatchers.IO) {
+            try {
+                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+
+                val response =
+                    UploadProfilePictureApi.uploadProfilePictureService.uploadProfilePicture(
+                        image = body,
+                        type = "image/jpeg",
+                        name = file.name,
+                        size = file.length().toInt(),
+                        isProfilePicture = true
+                    )
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println("Error uploading profile picture: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            coroutineScope.launch {
+                val bitmap = BitmapFactory.decodeStream(context.contentResolver.openInputStream(it))
+                profilePicture = bitmap
+
+                val file = File(context.cacheDir, "profile_picture.jpg")
+                val outputStream = FileOutputStream(file)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                outputStream.flush()
+                outputStream.close()
+
+                uploadProfilePicture(file)
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             fetchFriendsAndInvites()
+            profilePicture = fetchProfilePicture()
         }
     }
 
@@ -114,7 +188,7 @@ fun ProfileScreen() {
             .fillMaxWidth()
             .padding(30.dp)
     ) {
-        ElevatedCardExample()
+        ElevatedCardExample(profilePicture) { imagePickerLauncher.launch("image/*") }
         Text(
             text = "Freunde",
             modifier = Modifier.padding(top = 16.dp),
@@ -143,7 +217,7 @@ fun ProfileScreen() {
             )
         }
         LazyColumn {
-            items(invites) {invite ->
+            items(invites) { invite ->
                 InviteCard(invite) { fetchFriendsAndInvites() }
             }
             items(friends) { friend ->
@@ -157,7 +231,7 @@ fun ProfileScreen() {
 
 
 @Composable
-fun ElevatedCardExample() {
+fun ElevatedCardExample(profilePicture: Bitmap?, onProfilePictureClick: () -> Unit) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -173,14 +247,28 @@ fun ElevatedCardExample() {
                 .height(150.dp)
                 .padding(top = 8.dp, start = 8.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.profile_pic),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
-            )
+
+            if (profilePicture != null) {
+                Image(
+                    bitmap = profilePicture.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .clickable { onProfilePictureClick() }
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.profile_pic),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .clickable { onProfilePictureClick() }
+                )
+            }
             Column(
                 modifier = Modifier.padding(top = 20.dp)
             ) {
@@ -343,7 +431,7 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
                                 println("Error declining invite: ${e.message}")
                             }
                         }
-                }
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
@@ -417,8 +505,6 @@ fun LogoutButton(modifier: Modifier) {
 }
 
 
-
-
 @Composable
 fun AddFriendDialog(
     showDialog: Boolean,
@@ -456,6 +542,36 @@ fun AddFriendDialog(
             }
 
         )
+    }
+}
+
+@Composable
+fun EditProfileDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+) {
+
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                TextButton(
+                    onClick = { onDismissRequest() },
+                    modifier = Modifier.padding(8.dp),
+                ) {
+                    Text("Dismiss")
+                }
+                TextButton(
+                    onClick = { onConfirmation() },
+                    modifier = Modifier.padding(8.dp),
+                ) {
+                    Text("Confirm")
+                }
+            }
+        }
     }
 }
 
@@ -499,7 +615,6 @@ fun AddFriendDialog(
 //    }
 //    item { friendCard(ExampleFriend(userName = "Jonson123", progress = 36)) }
 //}
-
 
 
 //@Composable

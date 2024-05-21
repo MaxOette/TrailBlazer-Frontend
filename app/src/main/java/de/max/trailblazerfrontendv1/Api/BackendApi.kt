@@ -3,6 +3,7 @@ package de.max.trailblazerfrontendv1.Api
 import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import okhttp3.Interceptor
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -15,7 +16,9 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -93,10 +96,6 @@ interface FriendInviteService{
     suspend fun getFriendInvites() : List<Invite>
 }
 
-interface ProfilePictureService{
-    @GET("/api/v1/files/profile/picture")
-    suspend fun getProfilePicture(): ResponseBody
-}
 
 interface  AddFriendService{
     @POST("/api/v1/friend/email/{email}")
@@ -116,6 +115,48 @@ interface DeleteFriendService {
     suspend fun deleteFriend(
         @Path("friendID") friendID: String
     ) : List<Friend>
+}
+
+interface ProfilePictureService{
+    @GET("/api/v1/files/profile/picture")
+    suspend fun getProfilePicture(): ResponseBody
+}
+
+interface UploadProfilePictureService{
+    @Multipart
+    @POST("/api/v1/files/upload")
+    suspend fun uploadProfilePicture(
+        @Part image: MultipartBody.Part,
+        @Query("type") type: String,
+        @Query("name") name: String,
+        @Query("size") size: Int,
+        @Query("isProfilePicture") isProfilePicture: Boolean
+    ): ResponseBody
+}
+
+object UploadProfilePictureApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(UploadProfilePictureApi.httpClient)
+        .build()
+    val uploadProfilePictureService: UploadProfilePictureService = retrofit.create(UploadProfilePictureService::class.java)
+}
+object ProfilePictureApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(ProfilePictureApi.httpClient)
+        .build()
+    val profilePictureService: ProfilePictureService = retrofit.create(ProfilePictureService::class.java)
 }
 
 object DeleteFriendApi{
@@ -169,18 +210,7 @@ object FriendInviteApi{
         .build()
     val friendInviteService: FriendInviteService = retrofit.create(FriendInviteService::class.java)
 }
-object ProfilePictureApi{
-    private val httpClient = OkHttpClient.Builder()
-        .addInterceptor(TokenInterceptor())
-        .retryOnConnectionFailure(true)
-        .build()
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("http://195.201.42.22:8080/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .client(ProfilePictureApi.httpClient)
-        .build()
-    val profilePictureService: ProfilePictureService = retrofit.create(ProfilePictureService::class.java)
-}
+
 object FriendIdApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
