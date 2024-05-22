@@ -2,6 +2,7 @@ package de.max.trailblazerfrontendv1.screens
 
 import android.app.Activity
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,15 +20,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -44,16 +47,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.max.trailblazerfrontendv1.Api.AddFriendApi
@@ -70,7 +72,6 @@ import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import de.max.trailblazerfrontendv1.location.LocationService
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -81,7 +82,7 @@ import kotlinx.coroutines.withContext
 fun ProfileScreen() {
     var showDialog by remember { mutableStateOf(false) }
     var friends by remember { mutableStateOf(listOf<Friend>()) }
-    var invites by remember { mutableStateOf(listOf<Invite>())}
+    var invites by remember { mutableStateOf(listOf<Invite>()) }
     val coroutineScope = rememberCoroutineScope()
 
     suspend fun fetchFriendsAndInvites() {
@@ -91,10 +92,10 @@ fun ProfileScreen() {
             val fetchedInvites = FriendInviteApi.friendInviteService.getFriendInvites()
 
 
-            if (fetchedInvites.isEmpty()) {
-                invites = listOf() // Set to an empty list if no pending invites
+            invites = if (fetchedInvites.isEmpty()) {
+                listOf() // Set to an empty list if no pending invites
             } else {
-                invites = fetchedInvites
+                fetchedInvites
             }
 
 
@@ -111,21 +112,17 @@ fun ProfileScreen() {
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(30.dp)
     ) {
-        ElevatedCardExample()
+        ProfileOverviewCard()
         Text(
             text = "Freunde",
             modifier = Modifier.padding(top = 16.dp),
             fontWeight = FontWeight.Bold,
             fontSize = 36.sp
         )
-        Button(
-            onClick = { showDialog = true }
-        ) {
-            Text("Freund hinzufügen")
-        }
+
         //todo Antwortlogik
         if (showDialog) {
             AddFriendDialog(
@@ -142,22 +139,48 @@ fun ProfileScreen() {
                 }
             )
         }
-        LazyColumn {
-            items(invites) {invite ->
-                InviteCard(invite) { fetchFriendsAndInvites() }
+
+        if(friends.isEmpty() && invites.isEmpty()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxHeight(0.85f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                items(1) {
+                    Text(
+                        text= "Du hast noch keine Freunde!",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(56.dp))
+                }
             }
-            items(friends) { friend ->
-                friendCard(friend) { fetchFriendsAndInvites() }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxHeight(0.85f)
+            ) {
+                items(invites) { invite ->
+                    InviteCard(invite) { fetchFriendsAndInvites() }
+                }
+                items(friends) { friend ->
+                    friendCard(friend) { fetchFriendsAndInvites() }
+                }
             }
         }
+        Spacer(Modifier.height(8.dp))
+        Button(
+            onClick = { showDialog = true },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.PersonAdd, contentDescription = "Freund hinzufügen")
+            Text("  Freund hinzufügen")
+        }
     }
-
-
 }
 
 
+
 @Composable
-fun ElevatedCardExample() {
+fun ProfileOverviewCard() {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -233,6 +256,7 @@ data class ExampleFriend(
 
 @Composable
 fun InviteCard(invite: Invite, onInviteHandled: suspend () -> Unit) {
+    val context = LocalContext.current
     val email: String = invite.email
     val uuid = invite.uuid
 
@@ -242,7 +266,7 @@ fun InviteCard(invite: Invite, onInviteHandled: suspend () -> Unit) {
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(vertical = 8.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -252,40 +276,55 @@ fun InviteCard(invite: Invite, onInviteHandled: suspend () -> Unit) {
                 .padding(16.dp)
         ) {
             Text(
-                text = email,
+                text = "Anfrage von $email",
                 modifier = Modifier.weight(1f),
+                fontWeight = FontWeight.Bold
             )
             Row {
-                Button(
+                IconButton(
                     onClick = {
                         GlobalScope.launch(Dispatchers.IO) {
                             try {
                                 UpdateFriendApi.updateFriendService.acceptFriend(true, uuid)
                                 onInviteHandled()
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(context, "Freundschaftsanfrage angenommen", Toast.LENGTH_LONG).show()
+                                }
                             } catch (e: Exception) {
                                 println("Error accepting invite: ${e.message}")
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(context, "Fehler bei der Anfrageverarbeitung", Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
                     }
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = "Accept")
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(Icons.Default.CheckCircle, contentDescription = "Accept", tint = Color.Green)
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
+                Spacer(modifier = Modifier.width(4.dp))
+                IconButton(
                     onClick = {
                         GlobalScope.launch(Dispatchers.IO) {
                             try {
                                 UpdateFriendApi.updateFriendService.acceptFriend(false, uuid)
                                 onInviteHandled()
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(context, "Freundschaftsanfrage abgelehnt", Toast.LENGTH_LONG).show()
+                                }
                             } catch (e: Exception) {
                                 println("Error declining invite: ${e.message}")
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(context, "Fehler bei der Anfrageverarbeitung", Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
                     }
                 ) {
-                    Icon(Icons.Default.Close, contentDescription = "Decline")
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = "Decline",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
@@ -294,9 +333,11 @@ fun InviteCard(invite: Invite, onInviteHandled: suspend () -> Unit) {
 
 @Composable
 fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
+    val context = LocalContext.current
     val email = friend.email
     val progress = friend.stats
     val uuid = friend.uuid
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -304,7 +345,7 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
         modifier = Modifier
             .height(120.dp)
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(vertical = 8.dp)
     ) {
         Column(
             modifier = Modifier
@@ -314,13 +355,13 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween // Ensure space between email and delete button
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.profile_pic),
+                        painter = painterResource(id = R.drawable.profile_pic), //TODO profile_pic ist noch hardcoded
                         contentDescription = null,
                         modifier = Modifier
                             .size(50.dp)
@@ -328,10 +369,10 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
                             .background(MaterialTheme.colorScheme.primary)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = email,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
+                    Column(modifier = Modifier.align(Alignment.CenterVertically)) {
+                        Text(text = email, fontWeight = FontWeight.Bold)
+                        Text(text = String.format("%.3f", progress) + "%")
+                    }
                 }
                 IconButton(
                     onClick = {
@@ -339,11 +380,21 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
                             try {
                                 DeleteFriendApi.deleteFriendService.deleteFriend(uuid)
                                 onDeleteFriendHandled()
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        context,
+                                        "Die Freundschaft wurde beendet",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
                             } catch (e: Exception) {
                                 println("Error declining invite: ${e.message}")
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(context, "Fehler bei der Anfrageverarbeitung", Toast.LENGTH_LONG).show()
+                                }
                             }
                         }
-                }
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
@@ -354,8 +405,7 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
             }
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
-                progress = progress,
-                modifier = Modifier.fillMaxWidth(),
+                progress = progress.div(100f),
                 color = MaterialTheme.colorScheme.primary
             )
         }
@@ -371,16 +421,8 @@ fun EditProfileButton(modifier: Modifier) {
 
         }
     ) {
-//        Icon(
-//            Icons.Default.BorderColor,
-//            contentDescription = "",
-//            tint = MaterialTheme.colorScheme.surface
-//        ) // 	( 0 _ 0 )
-        Text(
-            modifier = Modifier.padding(start = 4.dp),
-            text = "Bearbeiten"
-        )
-
+        Icon(Icons.Default.EditNote, contentDescription = "Profil bearbeiten")
+        Text("  Bearbeiten")
     }
 }
 
@@ -412,11 +454,10 @@ fun LogoutButton(modifier: Modifier) {
             }
         }
     ) {
-        Text("Abmelden")
+        Icon(Icons.Default.Logout, contentDescription = "Abmelden")
+        Text("  Abmelden")
     }
 }
-
-
 
 
 @Composable
@@ -426,7 +467,8 @@ fun AddFriendDialog(
     onSubmit: (String) -> Unit,
 ) {
     if (showDialog) {
-        var email by remember { mutableStateOf("") }  // Declare email here so it's shared
+        var email by remember { mutableStateOf("") }
+        val context = LocalContext.current
 
         AlertDialog(
             onDismissRequest = { onDismissRequest() },
@@ -442,7 +484,8 @@ fun AddFriendDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        onSubmit(email)  // Now email is accessible here
+                        onSubmit(email)
+                        Toast.makeText(context, "Freundschaftsanfrage versendet", Toast.LENGTH_LONG).show()
                         onDismissRequest()
                     }
                 ) {
@@ -499,7 +542,6 @@ fun AddFriendDialog(
 //    }
 //    item { friendCard(ExampleFriend(userName = "Jonson123", progress = 36)) }
 //}
-
 
 
 //@Composable
