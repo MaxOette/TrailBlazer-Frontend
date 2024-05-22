@@ -1,6 +1,7 @@
 package de.max.trailblazerfrontendv1.Api
 
 import com.google.android.gms.maps.model.LatLng
+import de.max.trailblazerfrontendv1.Interfaces.FormInput
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -53,6 +54,14 @@ interface AuthStatusService{
 interface LogoutService{
     @POST("/api/v1/auth/logout")
     suspend fun logout()
+}
+
+interface PasswordResetService{
+    @POST("/api/v1/auth/reset/accept")
+    suspend fun setNewPassword(@Body formInput: FormInput) : ResponseBody
+
+    @POST("/api/v1/auth/reset")
+    suspend fun requestResetCode(@Query("email") email: String, @Query("mock") mock : Boolean) : ResponseBody
 }
 
 interface TileService{
@@ -269,6 +278,19 @@ object LogoutAPI{
         .client(LogoutAPI.httpClient)
         .build()
     val logoutService: LogoutService = retrofit.create(LogoutService::class.java)
+}
+
+object ResetPasswordAPI {
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(ResetPasswordAPI.httpClient)
+        .build()
+    val passwordResetService: PasswordResetService = retrofit.create(PasswordResetService::class.java)
 }
 
 object AuthStatusApi {
