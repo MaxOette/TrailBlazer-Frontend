@@ -341,7 +341,7 @@ fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Un
                 )
             }
             Column(
-                modifier = Modifier.padding(top = 20.dp)
+                modifier = Modifier.padding(top = 0.dp)
             ) {
                 Text(
                     text = UserConstants.username,
@@ -353,7 +353,7 @@ fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Un
                     text = UserConstants.email + "platz@halter.de", //TODO: Abändern, sobald BE die korrekten Daten liefert
                     modifier = Modifier.padding(start = 24.dp),
                     fontWeight = FontWeight.Normal,
-                    fontSize = 24.sp
+                    fontSize = 18.sp
                 )
             }
         }
