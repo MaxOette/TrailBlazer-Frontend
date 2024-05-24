@@ -174,12 +174,15 @@ object ChangePasswordApi{
 object FriendProfilePictureApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
         .retryOnConnectionFailure(true)
         .build()
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(FriendProfilePictureApi.httpClient)
+        .client(httpClient)
         .build()
     val friendProfilePictureService: FriendProfilePictureService = retrofit.create(FriendProfilePictureService::class.java)
 }
@@ -187,24 +190,30 @@ object FriendProfilePictureApi{
 object UploadProfilePictureApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
         .retryOnConnectionFailure(true)
         .build()
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(UploadProfilePictureApi.httpClient)
+        .client(httpClient)
         .build()
     val uploadProfilePictureService: UploadProfilePictureService = retrofit.create(UploadProfilePictureService::class.java)
 }
 object ProfilePictureApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
         .retryOnConnectionFailure(true)
         .build()
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(ProfilePictureApi.httpClient)
+        .client(httpClient)
         .build()
     val profilePictureService: ProfilePictureService = retrofit.create(ProfilePictureService::class.java)
 }
@@ -217,7 +226,7 @@ object DeleteFriendApi{
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(DeleteFriendApi.httpClient)
+        .client(httpClient)
         .build()
     val deleteFriendService : DeleteFriendService = retrofit.create(DeleteFriendService::class.java)
 }
@@ -230,7 +239,7 @@ object UpdateFriendApi{
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(UpdateFriendApi.httpClient)
+        .client(httpClient)
         .build()
     val updateFriendService : UpdateFriendService = retrofit.create(UpdateFriendService::class.java)
 }
@@ -243,7 +252,7 @@ object AddFriendApi{
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(AddFriendApi.httpClient)
+        .client(httpClient)
         .build()
     val addFriendService : AddFriendService = retrofit.create(AddFriendService::class.java)
 }
@@ -256,7 +265,7 @@ object FriendInviteApi{
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(FriendInviteApi.httpClient)
+        .client(httpClient)
         .build()
     val friendInviteService: FriendInviteService = retrofit.create(FriendInviteService::class.java)
 }
@@ -269,7 +278,7 @@ object FriendIdApi{
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(FriendIdApi.httpClient)
+        .client(httpClient)
         .build()
     val friendIdService: FriendIdService = retrofit.create(FriendIdService::class.java)
 }
@@ -285,7 +294,7 @@ object TileApi{
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(TileApi.httpClient)
+        .client(httpClient)
         .build()
     val tileService: TileService = retrofit.create(TileService::class.java)
 }
