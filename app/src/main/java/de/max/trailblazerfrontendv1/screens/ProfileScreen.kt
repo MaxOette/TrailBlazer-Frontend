@@ -32,14 +32,18 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -65,6 +69,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -188,7 +194,7 @@ fun ProfileScreen() {
 
     suspend fun changePassword(password: String): Boolean {
         return try {
-            val response = ChangePasswordApi.changePasswordService.changePassword(password)
+            ChangePasswordApi.changePasswordService.changePassword(password)
             true
         } catch (e: Exception) {
             e.printStackTrace()
@@ -242,7 +248,7 @@ fun ProfileScreen() {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 context,
-                                if (success) "Password changed successfully" else "Failed to change password",
+                                if (success) "Passwort erfolgreich geändert" else "Fehler beim Ändern des Passworts",
                                 Toast.LENGTH_LONG
                             ).show()
                             showPasswordDialog = false
@@ -651,7 +657,7 @@ fun AddFriendDialog(
                 }
             },
             dismissButton = {
-                Button(onClick = { onDismissRequest() }) {
+                TextButton(onClick = { onDismissRequest() }) {
                     Text("Abbrechen")
                 }
             }
@@ -666,38 +672,50 @@ fun EditProfileDialog(
     onConfirmation: (String) -> Unit,
 ) {
     var password by remember { mutableStateOf("") }
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = "Passwort ändern")
-            Spacer(modifier = Modifier.height(16.dp))
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Neues Passwort") },
-                singleLine = true
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                TextButton(
-                    onClick = { onDismissRequest() },
-                    modifier = Modifier.padding(8.dp),
-                ) {
-                    Text("Dismiss")
-                }
-                TextButton(
-                    onClick = { onConfirmation(password) },
-                    modifier = Modifier.padding(8.dp),
-                ) {
-                    Text("Confirm")
+    AlertDialog(
+        onDismissRequest = { onDismissRequest() },
+        title = { Text(text = "Passwort ändern") },
+        text = {
+            var isPasswordVisible by remember { mutableStateOf(false) }
+            val trailingIcon = @Composable {
+                IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    Icon(
+                        if (isPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
                 }
             }
+            Column {
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Neues Passwort") },
+                    singleLine = true,
+                    trailingIcon = trailingIcon,
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text("Bitte gut merken :P")
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirmation(password)
+                }
+            ) {
+                Text("Hinzufügen")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissRequest() }) {
+                Text("Abbrechen")
+            }
         }
-    }
+
+    )
 }
 
 
