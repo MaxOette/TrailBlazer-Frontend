@@ -73,6 +73,7 @@ import de.max.trailblazerfrontendv1.Api.DeleteFriendApi
 import de.max.trailblazerfrontendv1.Api.Friend
 import de.max.trailblazerfrontendv1.Api.FriendIdApi
 import de.max.trailblazerfrontendv1.Api.FriendInviteApi
+import de.max.trailblazerfrontendv1.Api.FriendProfilePictureApi
 import de.max.trailblazerfrontendv1.Api.Invite
 
 import de.max.trailblazerfrontendv1.Api.LogoutAPI
@@ -91,6 +92,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import retrofit2.HttpException
 import java.io.File
 import java.io.FileOutputStream
 
@@ -155,6 +157,10 @@ fun ProfileScreen() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 println("Error uploading profile picture: ${e.localizedMessage}")
+            } catch (e: HttpException) {  // This catches HTTP-specific errors
+                val errorBody = e.response()?.errorBody()?.string()
+                println("HTTP Error: $errorBody")
+                e.printStackTrace()
             }
         }
     }
@@ -255,7 +261,7 @@ fun ProfileScreen() {
 
 
 @Composable
-fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Unit {
+fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Unit) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -283,6 +289,7 @@ fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Un
                         .clickable { onProfilePictureClick() }
                 )
             } else {
+                println("kein Bild gefunden, default verwendet")
                 Image(
                     painter = painterResource(id = R.drawable.profile_pic),
                     contentDescription = null,
@@ -426,6 +433,26 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
     val email = friend.email
     val progress = friend.stats
     val uuid = friend.uuid
+    val coroutineScope = rememberCoroutineScope()
+    var friendProfilePicture by remember { mutableStateOf<Bitmap?>(null) }
+
+    suspend fun fetchProfilePicture(): Bitmap? {
+        return try {
+            val response = FriendProfilePictureApi.friendProfilePictureService.getFriendProfilePicture(uuid)
+            response.byteStream()?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    LaunchedEffect(Unit){
+        coroutineScope.launch {
+            friendProfilePicture = fetchProfilePicture()
+        }
+    }
 
     Card(
         colors = CardDefaults.cardColors(
@@ -449,14 +476,26 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.profile_pic), //TODO profile_pic ist noch hardcoded
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
+                    val displayPicture = friendProfilePicture // local immutable copy
+                    if (displayPicture != null) {
+                        Image(
+                            bitmap = displayPicture.asImageBitmap(),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.profile_pic),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(50.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                        )
+                    }
                     Spacer(modifier = Modifier.width(8.dp))
                     Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                         Text(text = email, fontWeight = FontWeight.Bold)

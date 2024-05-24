@@ -143,6 +143,26 @@ interface UploadProfilePictureService{
     ): ResponseBody
 }
 
+interface FriendProfilePictureService{
+    @GET("/api/v1/files/profile/{uuid}/picture")
+    suspend fun getFriendProfilePicture(
+        @Path("uuid") uuid: String
+    ): ResponseBody
+}
+
+object FriendProfilePictureApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(FriendProfilePictureApi.httpClient)
+        .build()
+    val friendProfilePictureService: FriendProfilePictureService = retrofit.create(FriendProfilePictureService::class.java)
+}
+
 object UploadProfilePictureApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
