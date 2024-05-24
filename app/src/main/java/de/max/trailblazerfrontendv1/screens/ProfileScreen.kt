@@ -67,6 +67,9 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.EmojiSupportMatch
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -340,7 +343,6 @@ fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Un
             Column(
                 modifier = Modifier.padding(top = 20.dp)
             ) {
-                //Todo Anbinden des Usernames sobald verfügbar
                 Text(
                     text = UserConstants.username,
                     modifier = Modifier.padding(start = 24.dp),
@@ -348,7 +350,7 @@ fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Un
                     fontSize = 36.sp
                 )
                 Text(
-                    text = UserConstants.email,
+                    text = UserConstants.email + "platz@halter.de", //TODO: Abändern, sobald BE die korrekten Daten liefert
                     modifier = Modifier.padding(start = 24.dp),
                     fontWeight = FontWeight.Normal,
                     fontSize = 24.sp
@@ -606,6 +608,7 @@ fun LogoutButton(modifier: Modifier) {
                     UserConstants.accessToken = ""
                     UserConstants.refreshToken = ""
                     UserConstants.email = ""
+                    UserConstants.username = ""
 
                     withContext(Dispatchers.Main) {
                         context.startActivity(Intent(context, LoginActivity::class.java))
@@ -697,7 +700,15 @@ fun EditProfileDialog(
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Bitte gut merken :P")
+                Text(
+                    text = "Bitte gut merken \uD83D\uDE43",
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(
+                            emojiSupportMatch = EmojiSupportMatch.None
+                        )
+                        // ...
+                    )
+                )
             }
         },
         confirmButton = {

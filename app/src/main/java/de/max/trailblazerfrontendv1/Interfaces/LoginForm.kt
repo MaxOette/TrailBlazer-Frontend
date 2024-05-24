@@ -229,7 +229,8 @@ fun checkCredentials(creds: Credentials, context: Context) {
                 println(response)
                 UserConstants.refreshToken = response.refresh_token
                 UserConstants.accessToken = response.token
-                UserConstants.email = response.email
+                UserConstants.username = response.email //TODO: Wenn das BE die Daten mal richtigrum zurückliefert, wieder anpassen.
+                //UserConstants.email = response.email
 
                 withContext(Dispatchers.Main) {
                     context.startActivity(Intent(context, MainActivity::class.java))
