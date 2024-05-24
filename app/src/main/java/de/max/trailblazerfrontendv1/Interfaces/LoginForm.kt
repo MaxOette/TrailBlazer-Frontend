@@ -91,7 +91,7 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit) {
         val context = LocalContext.current
 
         Text(
-            text = "Anmelden",
+            text = "Anmelden \uD83D\uDC4B",
             modifier = Modifier
                 .padding(all = 30.dp)
                 .padding(top = 70.dp),

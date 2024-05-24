@@ -71,7 +71,7 @@ fun RegisterForm(onLoginClicked: () -> Unit) {
         val context = LocalContext.current
 
         Text(
-            text = "Registrieren",
+            text = "Registrieren \uD83C\uDFF7\uFE0F",
             modifier = Modifier
                 .padding(all = 30.dp)
                 .padding(top = 70.dp),
