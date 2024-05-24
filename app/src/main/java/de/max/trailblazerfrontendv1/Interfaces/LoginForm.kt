@@ -237,7 +237,7 @@ fun checkCredentials(creds: Credentials, context: Context) {
                 }
             }catch(e: Exception){
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Zugangsdaten inkorrekt: ${e.message}", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Zugangsdaten inkorrekt: ${e.message}", Toast.LENGTH_LONG)
                         .show()
                 }
                 println("error occured during login ${e.message}")

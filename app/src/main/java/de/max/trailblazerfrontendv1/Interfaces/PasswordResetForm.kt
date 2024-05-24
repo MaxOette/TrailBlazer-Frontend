@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.max.trailblazerfrontendv1.Api.LoginApi
 import de.max.trailblazerfrontendv1.Api.LoginUserData
+import de.max.trailblazerfrontendv1.Api.ResetPasswordAPI
 import de.max.trailblazerfrontendv1.LoginActivity
 import de.max.trailblazerfrontendv1.MainActivity
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
@@ -84,10 +85,11 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun PasswordResetForm(onBackClicked: () -> Unit) {
-    Surface (modifier =  Modifier.fillMaxSize()) {
 
-        var credentials by remember { mutableStateOf(Credentials()) }
-        val context = LocalContext.current
+    var formInput by remember { mutableStateOf(FormInput()) }
+    val context = LocalContext.current
+
+    Surface (modifier =  Modifier.fillMaxSize()) {
 
         Column(modifier = Modifier
             .padding(top = 30.dp)
@@ -102,11 +104,12 @@ fun PasswordResetForm(onBackClicked: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Text("Für welchen Account soll das Passwort zurückgesetzt werden?")
             Spacer(modifier = Modifier.height(16.dp))
-            ResetPwEmailField(value = "", onChange = {}, modifier = Modifier.fillMaxWidth())
+            ResetPwEmailField(value = formInput.email,
+                onChange = { data -> formInput = formInput.copy(email = data) }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { },
-                enabled = credentials.isNotEmpty(),
+                onClick = { requestResetCode(formInput.email, context) },
+                enabled = formInput.email.isNotEmpty(),
                 shape = RoundedCornerShape(18.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -124,19 +127,59 @@ fun PasswordResetForm(onBackClicked: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
             Text("Gib ein neues Passwort an und bestätige es mit dem Reset-Code, den wir an deine E-Mail Adresse gesendet haben.")
             Spacer(modifier = Modifier.height(16.dp))
-            ResetPwPasswordField(value = "", onChange = {})
+            ResetPwPasswordField(value = formInput.password,
+                onChange = { data -> formInput = formInput.copy(password = data) })
             Spacer(modifier = Modifier.height(16.dp))
-            ResetPwCodeField(value = "", onChange = {}, modifier = Modifier.fillMaxWidth())
+            ResetPwCodeField(value = formInput.pin,
+                onChange = { data -> formInput = formInput.copy(pin = data) }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { },
-                enabled = credentials.isNotEmpty(),
+                onClick = { setNewPassword(formInput, context) },
+                enabled = formInput.isNotEmpty(),
                 shape = RoundedCornerShape(18.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Neues Passwort setzen")
             }
         }
+    }
+}
+
+fun requestResetCode(email : String, context: Context) {
+    GlobalScope.launch(Dispatchers.IO) {
+        try {
+            ResetPasswordAPI.passwordResetService.requestResetCode(email, false)
+
+        }catch(e: Exception){
+            withContext(Dispatchers.Main) {
+                Toast.makeText(context, "Fehler ${e.message}. Bitte Eingaben überprüfen!", Toast.LENGTH_LONG)
+                    .show()
+            }
+            println("error occured during login ${e.message}")
+        }
+    }
+}
+
+fun setNewPassword(formInput: FormInput, context: Context) {
+    if (formInput.isNotEmpty()) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                ResetPasswordAPI.passwordResetService.setNewPassword(formInput)
+
+                withContext(Dispatchers.Main) {
+                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    (context as Activity).finish()
+                }
+            }catch(e: Exception){
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Fehler ${e.message}. Bitte Eingaben überprüfen!", Toast.LENGTH_LONG)
+                        .show()
+                }
+                println("error occured during login ${e.message}")
+            }
+        }
+    } else {
+            Toast.makeText(context, "Bitte alle Felder ausfüllen: E-Mail, Passwort, Reset-Code", Toast.LENGTH_LONG).show()
     }
 }
 
@@ -249,4 +292,14 @@ fun ResetPwCodeField(
         singleLine = true,
         visualTransformation = VisualTransformation.None
     )
+}
+
+data class FormInput(
+    var email: String = "",
+    var password: String = "",
+    var pin: String = ""
+) {
+    fun isNotEmpty(): Boolean {
+        return email.isNotEmpty() && password.isNotEmpty() && pin.isNotEmpty()
+    }
 }
