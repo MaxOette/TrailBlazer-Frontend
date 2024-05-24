@@ -150,6 +150,27 @@ interface FriendProfilePictureService{
     ): ResponseBody
 }
 
+interface ChangePasswordService{
+    @POST("/api/v1/user/password/set")
+    suspend fun changePassword(
+        @Body password: String
+    ): ResponseBody
+}
+
+object ChangePasswordApi{
+    private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor())
+        .retryOnConnectionFailure(true)
+        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("http://195.201.42.22:8080/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(ChangePasswordApi.httpClient)
+        .build()
+    val changePasswordService: ChangePasswordService = retrofit.create(ChangePasswordService::class.java)
+}
+
+
 object FriendProfilePictureApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())

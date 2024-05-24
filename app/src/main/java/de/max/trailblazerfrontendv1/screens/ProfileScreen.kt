@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import de.max.trailblazerfrontendv1.Api.AddFriendApi
+import de.max.trailblazerfrontendv1.Api.ChangePasswordApi
 import de.max.trailblazerfrontendv1.Api.DeleteFriendApi
 import de.max.trailblazerfrontendv1.Api.Friend
 import de.max.trailblazerfrontendv1.Api.FriendIdApi
@@ -100,6 +101,7 @@ import java.io.FileOutputStream
 @Composable
 fun ProfileScreen() {
     var showDialog by remember { mutableStateOf(false) }
+    var showPasswordDialog by remember { mutableStateOf(false) }
     var friends by remember { mutableStateOf(listOf<Friend>()) }
     var invites by remember { mutableStateOf(listOf<Invite>()) }
     var profilePicture by remember { mutableStateOf<Bitmap?>(null) }
@@ -184,6 +186,16 @@ fun ProfileScreen() {
         }
     }
 
+    suspend fun changePassword(password: String): Boolean {
+        return try {
+            val response = ChangePasswordApi.changePasswordService.changePassword(password)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             fetchFriendsAndInvites()
@@ -196,7 +208,7 @@ fun ProfileScreen() {
             .fillMaxSize()
             .padding(30.dp)
     ) {
-        ProfileOverviewCard(profilePicture){ imagePickerLauncher.launch("image/*") }
+        ProfileOverviewCard(profilePicture,onProfilePictureClick = { imagePickerLauncher.launch("image/*") }, onEditProfile = { showPasswordDialog = true }) //{ imagePickerLauncher.launch("image/*") }
         Text(
             text = "Freunde",
             modifier = Modifier.padding(top = 16.dp),
@@ -221,7 +233,26 @@ fun ProfileScreen() {
             )
         }
 
-        if(friends.isEmpty() && invites.isEmpty()) {
+        if (showPasswordDialog) {
+            EditProfileDialog(
+                onDismissRequest = { showPasswordDialog = false },
+                onConfirmation = { password ->
+                    coroutineScope.launch {
+                        val success = changePassword(password)
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                context,
+                                if (success) "Password changed successfully" else "Failed to change password",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            showPasswordDialog = false
+                        }
+                    }
+                }
+            )
+        }
+
+            if(friends.isEmpty() && invites.isEmpty()) {
             LazyColumn(
                 modifier = Modifier.fillMaxHeight(0.85f),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -261,7 +292,7 @@ fun ProfileScreen() {
 
 
 @Composable
-fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Unit) {
+fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Unit, onEditProfile: () -> Unit) {
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -327,7 +358,8 @@ fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Un
             EditProfileButton(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 8.dp, end = 4.dp)
+                    .padding(start = 8.dp, end = 4.dp),
+                onEditProfile = onEditProfile
             )
             LogoutButton(
                 modifier = Modifier
@@ -542,12 +574,10 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
 
 
 @Composable
-fun EditProfileButton(modifier: Modifier) {
+fun EditProfileButton(modifier: Modifier, onEditProfile: () -> Unit) {
     Button(
         modifier = modifier,
-        onClick = {
-
-        }
+        onClick = { onEditProfile() }
     ) {
         Icon(Icons.Default.EditNote, contentDescription = "Profil bearbeiten")
         Text("  Bearbeiten")
@@ -633,15 +663,25 @@ fun AddFriendDialog(
 @Composable
 fun EditProfileDialog(
     onDismissRequest: () -> Unit,
-    onConfirmation: () -> Unit,
+    onConfirmation: (String) -> Unit,
 ) {
-
+    var password by remember { mutableStateOf("") }
     Dialog(onDismissRequest = { onDismissRequest() }) {
-        Column {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = "Passwort ändern")
+            Spacer(modifier = Modifier.height(16.dp))
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Neues Passwort") },
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
             ) {
                 TextButton(
                     onClick = { onDismissRequest() },
@@ -650,7 +690,7 @@ fun EditProfileDialog(
                     Text("Dismiss")
                 }
                 TextButton(
-                    onClick = { onConfirmation() },
+                    onClick = { onConfirmation(password) },
                     modifier = Modifier.padding(8.dp),
                 ) {
                     Text("Confirm")
@@ -661,100 +701,5 @@ fun EditProfileDialog(
 }
 
 
-//LazyColumn(
-//
-//) {
-//    item {
-//        Button(
-//            onClick = {
-//                GlobalScope.launch(Dispatchers.IO) {
-//                    try {
-//                        val response = FriendIdApi.friendIdService.getFriendsId()
-//                        println(response);
-//                    } catch (e: Error) {
-//                        println(e.message);
-//                    }
-//                }
-//            }
-//        ) {
-//            Text("get freunde test")
-//        }
-//    }
-//    item {
-//        friendCard(ExampleFriend())
-//    }
-//    item {
-//        friendCard(ExampleFriend())
-//    }
-//    item {
-//        friendCard(ExampleFriend())
-//    }
-//    item {
-//        friendCard(ExampleFriend())
-//    }
-//    item {
-//        friendCard(ExampleFriend())
-//    }
-//    item {
-//        friendCard(ExampleFriend())
-//    }
-//    item { friendCard(ExampleFriend(userName = "Jonson123", progress = 36)) }
-//}
 
-
-
-//@Composable
-//fun AddFriendField(
-//    value: String,
-//    onChange: (String) -> Unit,
-//    modifier: Modifier = Modifier,
-//    label: String = "E-Mail",
-//    placeholder: String = "Gib Die E-Mail Adresse der Person an"
-//) {
-//
-//    val focusManager = LocalFocusManager.current
-//    val leadingIcon = @Composable {
-//        Icon(
-//            Icons.Default.Email,
-//            contentDescription = "",
-//            tint = MaterialTheme.colorScheme.primary
-//        )
-//    }
-//    Row() {
-//        TextField(
-//            value = value,
-//            onValueChange = onChange,
-//            modifier = modifier,
-//            leadingIcon = leadingIcon,
-//            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-//            keyboardActions = KeyboardActions(
-//                onNext = { focusManager.moveFocus(FocusDirection.Down) }
-//            ),
-//            //placeholder = { Text(placeholder) },
-//            label = { Text(label) },
-//            singleLine = true,
-//            visualTransformation = VisualTransformation.None
-//        )
-//
-//        Button(
-//            onClick = {
-//                GlobalScope.launch(Dispatchers.IO) {
-//                    try {
-//                        val response = AddFriendApi.addFriendService.addFriend(value)
-//                    } catch (e: Error) {
-//                        println(e.message)
-//                    }
-//                }
-//            }
-//
-//        ) {
-//            Text("Freund hinzufügen")
-//        }
-//    }
-//}
-
-//data class friendData(
-//    var email: String = ""
-//)
-//
 
