@@ -73,6 +73,13 @@ fun MapScreen(
         LatLng(55.092927, 5.86633)  //nordwest
     )
 
+    val mainPolygonBounds = listOf(
+        LatLng(30.0, -12.0), //südwest
+        LatLng(30.0, 33.0), //südost
+        LatLng(70.0, 33.0), //nordost
+        LatLng(70.0, -12.0)  //nordwest
+    )
+
 
     //val holeList = listOf(
     //    smallPolygonLocations
@@ -157,7 +164,7 @@ fun MapScreen(
         }
     ) {
         Polygon(
-            points = germanyMapBounds,
+            points = mainPolygonBounds,
             clickable = false,
             fillColor = Color.DarkGray.copy(alpha = 0.8f),
             geodesic = false, //false = Krümmung der Erdoberfläche wird nicht beachtet
