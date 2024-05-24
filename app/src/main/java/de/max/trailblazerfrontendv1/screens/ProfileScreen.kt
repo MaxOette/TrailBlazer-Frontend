@@ -706,7 +706,7 @@ fun EditProfileDialog(
                     onConfirmation(password)
                 }
             ) {
-                Text("Hinzufügen")
+                Text("Passwort setzen")
             }
         },
         dismissButton = {
