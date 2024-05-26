@@ -17,11 +17,11 @@ data class LoginUserData(
 
 data class ActiveUserData(
     val token: String,
+    val refresh_token: String,
     val type: String,
-    val username: String,
     val email: String,
-    val id: Int,
-    val refresh_token: String
+    val username: String,
+    val id: Long
 )
 
 data class TileData(

@@ -154,21 +154,20 @@ fun ProfileScreen() {
         withContext(Dispatchers.IO) {
             try {
                 val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                val body = MultipartBody.Part.createFormData("file", file.name, requestFile) // Note the key "file" here
 
-                val response =
-                    UploadProfilePictureApi.uploadProfilePictureService.uploadProfilePicture(
-                        image = body,
-                        type = "image/jpeg",
-                        name = file.name,
-                        size = file.length().toInt(),
-                        isProfilePicture = true
-                    )
+                val response = UploadProfilePictureApi.uploadProfilePictureService.uploadProfilePicture(
+                    file = body,
+                    type = "image/jpeg",
+                    name = file.name,
+                    size = file.length().toInt(),
+                    isProfilePicture = true
+                )
 
             } catch (e: Exception) {
                 e.printStackTrace()
                 println("Error uploading profile picture: ${e.localizedMessage}")
-            } catch (e: HttpException) {  // This catches HTTP-specific errors
+            } catch (e: HttpException) {
                 val errorBody = e.response()?.errorBody()?.string()
                 println("HTTP Error: $errorBody")
                 e.printStackTrace()
@@ -350,7 +349,7 @@ fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Un
                     fontSize = 36.sp
                 )
                 Text(
-                    text = UserConstants.email + "platz@halter.de", //TODO: Abändern, sobald BE die korrekten Daten liefert
+                    text = UserConstants.email,
                     modifier = Modifier.padding(start = 24.dp),
                     fontWeight = FontWeight.Normal,
                     fontSize = 18.sp

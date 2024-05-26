@@ -64,7 +64,7 @@ interface PasswordResetService{
     suspend fun setNewPassword(@Body formInput: FormInput) : ResponseBody
 
     @POST("/api/v1/auth/reset")
-    suspend fun requestResetCode(@Query("email") email: String, @Query("mock") mock : Boolean) : ResponseBody
+    suspend fun requestResetCode(@Body email: String) : ResponseBody
 }
 
 interface TileService{
@@ -135,7 +135,7 @@ interface UploadProfilePictureService{
     @Multipart
     @POST("/api/v1/files/upload")
     suspend fun uploadProfilePicture(
-        @Part image: MultipartBody.Part,
+        @Part file: MultipartBody.Part,
         @Query("type") type: String,
         @Query("name") name: String,
         @Query("size") size: Int,
@@ -160,12 +160,15 @@ interface ChangePasswordService{
 object ChangePasswordApi{
     private val httpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
         .retryOnConnectionFailure(true)
         .build()
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(ChangePasswordApi.httpClient)
+        .client(httpClient)
         .build()
     val changePasswordService: ChangePasswordService = retrofit.create(ChangePasswordService::class.java)
 }
@@ -362,13 +365,15 @@ object LogoutAPI{
 
 object ResetPasswordAPI {
     private val httpClient = OkHttpClient.Builder()
-        .addInterceptor(TokenInterceptor())
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
         .retryOnConnectionFailure(true)
         .build()
     private val retrofit = Retrofit.Builder()
         .baseUrl("http://195.201.42.22:8080/")
         .addConverterFactory(GsonConverterFactory.create())
-        .client(ResetPasswordAPI.httpClient)
+        .client(httpClient)
         .build()
     val passwordResetService: PasswordResetService = retrofit.create(PasswordResetService::class.java)
 }

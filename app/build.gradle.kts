@@ -58,6 +58,9 @@ dependencies {
     //Permissions
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 
+    //Fingerprint
+    implementation("androidx.biometric:biometric:1.1.0")
+
     //Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 

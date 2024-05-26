@@ -148,7 +148,7 @@ fun PasswordResetForm(onBackClicked: () -> Unit) {
 fun requestResetCode(email : String, context: Context) {
     GlobalScope.launch(Dispatchers.IO) {
         try {
-            ResetPasswordAPI.passwordResetService.requestResetCode(email, false)
+            ResetPasswordAPI.passwordResetService.requestResetCode(email)
 
         }catch(e: Exception){
             withContext(Dispatchers.Main) {
