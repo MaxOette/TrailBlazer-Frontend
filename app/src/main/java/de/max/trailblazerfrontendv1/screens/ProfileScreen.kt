@@ -705,7 +705,6 @@ fun EditProfileDialog(
                         platformStyle = PlatformTextStyle(
                             emojiSupportMatch = EmojiSupportMatch.None
                         )
-                        // ...
                     )
                 )
             }

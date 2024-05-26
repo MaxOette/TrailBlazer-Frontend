@@ -4,8 +4,8 @@ package de.max.trailblazerfrontendv1.Interfaces
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.widget.Toast
-import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -55,12 +54,16 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.navigation.compose.rememberNavController
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import de.max.trailblazerfrontendv1.Api.LoginApi
 import de.max.trailblazerfrontendv1.Api.LoginUserData
 import de.max.trailblazerfrontendv1.MainActivity
+import de.max.trailblazerfrontendv1.Util.BiometricLoginHelper
 import de.max.trailblazerfrontendv1.Util.UserConstants
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -68,43 +71,30 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit) {
+fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit, activity: FragmentActivity) {
+    val context = LocalContext.current
+    val biometricLoginHelper = remember { BiometricLoginHelper(activity) }
+    var enableFingerprintButton = remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+            val sharedPreferences = EncryptedSharedPreferences.create(
+                "secure_prefs",
+                masterKeyAlias,
+                context,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+            if(sharedPreferences.contains("email")) {
+                enableFingerprintButton.value = true
+            }
+        }
+    }
+
     Surface {
         val navController = rememberNavController()
         var credentials by remember { mutableStateOf(Credentials()) }
-        val context = LocalContext.current
-        val lifecycleOwner = LocalLifecycleOwner.current
-
-        //var biometricPrompt: BiometricPrompt? by remember { mutableStateOf(null) }
-        //var promptInfo: BiometricPrompt.PromptInfo? by remember { mutableStateOf(null) }
-
-        /*
-        LaunchedEffect(context) {
-            val executor = ContextCompat.getMainExecutor(context)
-            biometricPrompt = BiometricPrompt(lifecycleOwner, executor, object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    // Handle authentication error
-                }
-
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    // Handle authentication success
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    // Handle authentication failure
-                }
-            })
-
-            promptInfo = BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Biometric login for my app")
-                .setSubtitle("Log in using your biometric credential")
-                .setNegativeButtonText("Use account password")
-                .build()
-        } */
-
 
         Text(
             text = "Anmelden \uD83D\uDC4B",
@@ -120,25 +110,23 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
-
         ) {
-            Column (
+            Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-            ){
+            ) {
                 LoginField(
                     value = credentials.login,
                     onChange = { data -> credentials = credentials.copy(login = data) },
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 PasswordField(
-                    credentials,
-                    context,
+                    creds = credentials,
+                    context = context,
                     value = credentials.pwd,
                     onChange = { data -> credentials = credentials.copy(pwd = data) },
                     submit = { checkCredentials(credentials, context) },
@@ -153,15 +141,6 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit) {
                     .padding(top = 8.dp)
                     .clickable { onPwResetClicked() }
                 )
-                /*
-                Spacer(modifier = Modifier.height(16.dp))
-                LabeledCheckbox(
-                    "angemeldet bleiben",
-                    onCheckChanged = {
-                        credentials = credentials.copy(remember = credentials.remember)
-                    },
-                    isChecked = credentials.remember
-                ) */
                 Spacer(modifier = Modifier.height(28.dp))
                 Button(
                     onClick = { checkCredentials(credentials, context) },
@@ -171,26 +150,17 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit) {
                 ) {
                     Text("Login")
                 }
-                Button(
-                    onClick = {
-
-                        
-                    },
-                    shape = RoundedCornerShape(18.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Mit Fingerabdruck einloggen")
-                }
-
+                //if (BiometricAuthHelper.isBiometricAvailable(context)) {
+                    Button(
+                        onClick = { biometricLoginHelper.authenticate() },
+                        enabled = enableFingerprintButton.value,
+                        shape = RoundedCornerShape(18.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Mit Fingerabdruck einloggen")
+                    }
+                //}
                 Spacer(modifier = Modifier.height(16.dp))
-                /*
-                Button(
-                    onClick = { adminLogin(context)},
-                    shape = RoundedCornerShape(18.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Text("Admin")
-                } */
             }
             Text(
                 text = buildAnnotatedString {
@@ -203,12 +173,11 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit) {
                     .clickable { onRegisterClicked() }
                     .padding(8.dp)
                     .padding(bottom = 16.dp)
-
             )
         }
-
     }
 }
+
 
 fun adminLogin(context: Context){
     val loginUserData = LoginUserData (

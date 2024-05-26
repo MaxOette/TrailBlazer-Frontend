@@ -7,7 +7,8 @@ data class HealthResponse(
 data class RegisterUserData(
     val email: String,
     val password: String,
-    val username: String
+    val username: String,
+    val cipher: String
 )
 
 data class LoginUserData(

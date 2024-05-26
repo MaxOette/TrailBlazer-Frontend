@@ -1,5 +1,6 @@
 package de.max.trailblazerfrontendv1.Interfaces
 
+import BiometricAuthHelper
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
 import de.max.trailblazerfrontendv1.Api.LoginApi
 import de.max.trailblazerfrontendv1.Api.RegisterApi
 import de.max.trailblazerfrontendv1.Api.RegisterUserData
@@ -62,16 +64,17 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun RegisterForm(onLoginClicked: () -> Unit) {
+fun RegisterForm(onLoginClicked: () -> Unit, activity: FragmentActivity) {
     Surface {
 
         var credentials by remember {
             mutableStateOf(RegisterCredentials())
         }
         val context = LocalContext.current
+        val biometricAuthHelper = remember { BiometricAuthHelper(activity) }
 
         Text(
-            text = "Registrieren \uD83C\uDFF7\uFE0F",
+            text = "Registrieren",
             modifier = Modifier
                 .padding(all = 30.dp)
                 .padding(top = 70.dp),
@@ -116,6 +119,14 @@ fun RegisterForm(onLoginClicked: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.height(28.dp))
                 Button(
+                    onClick = { credentials.cipher = biometricAuthHelper.authenticate(credentials.email) },
+                    shape = RoundedCornerShape(18.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Fingerabdruck hinterlegen")
+                }
+                Spacer(modifier = Modifier.height(28.dp))
+                Button(
                     onClick = { checkRegisterCredentials(credentials, context) },
                     enabled = credentials.isNotEmpty(),
                     shape = RoundedCornerShape(18.dp),
@@ -148,7 +159,8 @@ fun checkRegisterCredentials(creds: RegisterCredentials, context: Context) {
         val registerUserData = RegisterUserData(
             email = creds.email,
             password = creds.pwd,
-            username = creds.userName
+            username = creds.userName,
+            cipher = creds.cipher
         )
 
 
@@ -176,6 +188,7 @@ data class RegisterCredentials(
     var userName: String = "",
     var email: String = "",
     var pwd: String = "",
+    var cipher: String = "",
     var remember: Boolean = false
 ) {
     fun isNotEmpty(): Boolean {

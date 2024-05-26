@@ -60,6 +60,7 @@ dependencies {
 
     //Fingerprint
     implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.security:security-crypto:1.1.0-alpha03")
 
     //Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.compose)
