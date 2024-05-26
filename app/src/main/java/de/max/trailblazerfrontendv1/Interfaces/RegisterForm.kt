@@ -96,9 +96,16 @@ fun RegisterForm(onLoginClicked: () -> Unit, activity: FragmentActivity) {
             text = "Registrieren",
             modifier = Modifier
                 .padding(all = 30.dp)
-                .padding(top = 70.dp),
+                .padding(top = 0.dp),
             fontWeight = FontWeight.Bold,
             fontSize = 36.sp
+        )
+        Text(
+            text = "Mit der Verwendung von TrailBlazer erklärst du dich einverstanden, keine Privatgrundstücke oder Sperrflächen zu betreten. TrailBlazer übernimmt keine Haftung für deine persönliche Sicherheit!",
+            modifier = Modifier
+                .padding(horizontal = 30.dp)
+                .padding(top = 80.dp),
+            fontSize = 14.sp
         )
         Column(
             verticalArrangement = Arrangement.Center,

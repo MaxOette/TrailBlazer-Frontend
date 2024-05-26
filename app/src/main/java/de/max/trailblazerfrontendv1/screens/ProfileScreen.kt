@@ -143,7 +143,7 @@ fun ProfileScreen() {
         withContext(Dispatchers.IO) {
             try {
                 val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                val body = MultipartBody.Part.createFormData("file", file.name, requestFile) // Note the key "file" here
+                val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
 
                 val response = UploadProfilePictureApi.uploadProfilePictureService.uploadProfilePicture(
                     file = body,
@@ -503,7 +503,7 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val displayPicture = friendProfilePicture // local immutable copy
+                    val displayPicture = friendProfilePicture
                     if (displayPicture != null) {
                         Image(
                             bitmap = displayPicture.asImageBitmap(),
