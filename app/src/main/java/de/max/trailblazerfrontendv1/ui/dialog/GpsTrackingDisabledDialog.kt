@@ -1,7 +1,5 @@
 package de.max.trailblazerfrontendv1.ui.dialog
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material3.AlertDialog
@@ -13,12 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.MessageStrings
-import de.max.trailblazerfrontendv1.location.LocationService
 
 @Composable
 fun GpsTrackingDisabledDialog(
     showDialog: MutableState<Boolean>,
-    applicationContext: Context
 ) {
     if (showDialog.value) {
         AlertDialog(
@@ -36,11 +32,6 @@ fun GpsTrackingDisabledDialog(
                 Text(text = MessageStrings.gpsTrackingDisabledDialogText)
             },
             onDismissRequest = {
-                /*
-                Intent(applicationContext, LocationService::class.java).apply {
-                    action = LocationService.ACTION_STOP
-                    applicationContext.startService(this)
-                } */
                 GeneralConstants.dialogAck = true
                 showDialog.value = false
             },

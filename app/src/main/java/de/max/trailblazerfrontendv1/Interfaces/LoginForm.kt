@@ -189,10 +189,6 @@ fun LoginForm(
 
 fun adminLogin(context: Context) {
     val loginUserData = LoginUserData(
-//        email = "datev@test.de",
-//        password = "password123."
-//        email= "email@email.de",
-//        password = "password123."
         email = "test1@test.de",
         password = "password123."
     )
@@ -270,31 +266,11 @@ data class Credentials(
 }
 
 @Composable
-fun LabeledCheckbox(
-    label: String,
-    onCheckChanged: () -> Unit,
-    isChecked: Boolean
-) {
-    Row(
-        Modifier
-            .clickable(
-                onClick = onCheckChanged
-            )
-            .padding(4.dp)
-    ) {
-        Checkbox(checked = isChecked, onCheckedChange = null)
-        Spacer(Modifier.size(6.dp))
-        Text(label)
-    }
-}
-
-@Composable
 fun LoginField(
     value: String,
     onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     label: String = "E-Mail",
-    placeholder: String = "Gib Deine E-Mail-Adresse ein"
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -315,7 +291,6 @@ fun LoginField(
         keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) }
         ),
-        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = VisualTransformation.None
@@ -331,7 +306,6 @@ fun PasswordField(
     submit: () -> Unit,
     modifier: Modifier = Modifier,
     label: String = "Passwort",
-    placeholder: String = "Gib Dein Passwort ein"
 ) {
 
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -372,7 +346,6 @@ fun PasswordField(
                 checkCredentials(creds, context)
             }
         ),
-        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()

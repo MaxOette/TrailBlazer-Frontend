@@ -15,10 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.ShareLocation
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -42,21 +40,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import de.max.trailblazerfrontendv1.Util.GeneralConstants
-import de.max.trailblazerfrontendv1.location.LocationService
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import java.io.IOException
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import com.google.maps.android.compose.MapType
 import de.max.trailblazerfrontendv1.R
+import de.max.trailblazerfrontendv1.Util.GeneralConstants
 import de.max.trailblazerfrontendv1.Util.datastore.DataStoreSingleton
-import de.max.trailblazerfrontendv1.map.MapsViewModel
+import de.max.trailblazerfrontendv1.location.LocationService
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import java.io.IOException
 
 @Composable
 fun SettingsScreen(applicationContext: Context) {
@@ -76,29 +73,7 @@ fun SettingsScreen(applicationContext: Context) {
                 fontWeight = FontWeight.Bold,
                 fontSize = 36.sp
             )
-            Spacer(modifier = Modifier.height(24.dp))
-            /*
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                StartTrackingButton(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 4.dp),
-                    applicationContext
-                )
-                StopTrackingButton(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 4.dp),
-                    applicationContext
-                )
-            } */
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(40.dp))
             Text(
                 text = "App-Einstellungen",
             )
@@ -112,38 +87,6 @@ fun SettingsScreen(applicationContext: Context) {
         }
     }
 }
-
-/*
-@Composable
-fun StartTrackingButton(modifier: Modifier, applicationContext: Context) {
-    Button(
-        modifier = modifier,
-        onClick = {
-            Intent(applicationContext, LocationService::class.java).apply {
-                action = LocationService.ACTION_START
-                applicationContext.startService(this)
-            }
-        }
-    ) {
-        Text("Start GPS Tracking")
-    }
-} */
-
-/*
-@Composable
-fun StopTrackingButton(modifier: Modifier, applicationContext: Context) {
-    Button(
-        modifier = modifier,
-        onClick = {
-            Intent(applicationContext, LocationService::class.java).apply {
-                action = LocationService.ACTION_STOP
-                applicationContext.startService(this)
-            }
-        }
-    ) {
-        Text("Stop GPS Tracking")
-    }
-} */
 
 @Composable
 fun AppSettingsCard(applicationContext: Context, dataStore: DataStore<Preferences>) {
@@ -196,52 +139,6 @@ fun AppSettingsCard(applicationContext: Context, dataStore: DataStore<Preference
         }
     }
 }
-
-/*
-@Composable
-fun GPSTrackingSwitch(applicationContext: Context, dataStore: DataStore<Preferences>) {
-    val GPS_TRACKING_KEY = booleanPreferencesKey("gps_tracking")
-
-    val gpsTrackingEnabledFlow: Flow<Boolean> = dataStore.data
-        .catch { exception  ->
-            if (exception is IOException) {
-                emit(emptyPreferences())
-            } else {
-                throw exception
-            }
-        }
-        .map { preferences ->
-            preferences[GPS_TRACKING_KEY] ?: false
-        }
-
-    //val gpsTrackingEnabled by gpsTrackingEnabledFlow.collectAsState(initial = true)
-    var gpsTrackingEnabled = remember { GeneralConstants.gpsTrackingEnabled }
-    val scope = MainScope()
-
-    Switch(
-        checked = gpsTrackingEnabled,
-        onCheckedChange = { isChecked ->
-            gpsTrackingEnabled = isChecked
-            GeneralConstants.gpsTrackingEnabled = isChecked
-            scope.launch {
-                dataStore.edit { settings ->
-                    settings[GPS_TRACKING_KEY] = isChecked
-                }
-            }
-            if (isChecked) {
-                Intent(applicationContext, LocationService::class.java).apply {
-                    action = LocationService.ACTION_START
-                    applicationContext.startService(this)
-                }
-            } else {
-                Intent(applicationContext, LocationService::class.java).apply {
-                    action = LocationService.ACTION_STOP
-                    applicationContext.startService(this)
-                }
-            }
-        },
-    )
-} */
 
 @Composable
 fun GPSTrackingSwitch(applicationContext: Context) {

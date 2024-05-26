@@ -35,9 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.max.trailblazerfrontendv1.Api.CountyStats
 import de.max.trailblazerfrontendv1.Api.StatsApi
-import de.max.trailblazerfrontendv1.R
 import de.max.trailblazerfrontendv1.Util.GeneralConstants
-import java.util.Locale
 
 @Composable
 fun StatsScreen() {

@@ -1,15 +1,13 @@
 package de.max.trailblazerfrontendv1.Api
 
-import com.google.android.gms.maps.model.LatLng
 import de.max.trailblazerfrontendv1.Interfaces.FormInput
 import de.max.trailblazerfrontendv1.Util.BiometricLoginHelper
 import de.max.trailblazerfrontendv1.Util.UserConstants
 import okhttp3.Interceptor
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
-import okhttp3.ResponseBody
-import retrofit2.Call
 import okhttp3.Response
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -17,7 +15,6 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.Headers
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part

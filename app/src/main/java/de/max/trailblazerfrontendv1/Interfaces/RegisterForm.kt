@@ -220,26 +220,6 @@ data class RegisterCredentials(
     }
 }
 
-/*
-@Composable
-fun LabeledCheckbox(
-    label: String,
-    onCheckChanged: () -> Unit,
-    isChecked: Boolean
-) {
-    Row(
-        Modifier
-            .clickable(
-                onClick = onCheckChanged
-            )
-            .padding(4.dp)
-    ) {
-        Checkbox(checked = isChecked, onCheckedChange = null)
-        Spacer(Modifier.size(6.dp))
-        Text(label)
-    }
-}
-*/
 
 @Composable
 fun EmailField(
@@ -247,7 +227,6 @@ fun EmailField(
     onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     label: String = "E-Mail",
-    placeholder: String = "Gib Deine E-Mail-Adresse ein"
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -268,7 +247,6 @@ fun EmailField(
         keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) }
         ),
-        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = VisualTransformation.None
@@ -284,7 +262,6 @@ fun RegisterPasswordField(
     submit: () -> Unit,
     modifier: Modifier = Modifier,
     label: String = "Passwort",
-    placeholder: String = "Wähle ein sicheres Passwort"
 ) {
 
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -324,7 +301,6 @@ fun RegisterPasswordField(
                 //checkRegisterCredentials(creds, context)
             }
         ),
-        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
@@ -337,7 +313,6 @@ fun RegisterUserNameField(
     onChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     label: String = "Benutzername",
-    placeholder: String = "Gib einen Benutzernamen ein"
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -358,47 +333,10 @@ fun RegisterUserNameField(
         keyboardActions = KeyboardActions(
             onNext = { focusManager.moveFocus(FocusDirection.Down) }
         ),
-        //placeholder = { Text(placeholder) },
         label = { Text(label) },
         singleLine = true,
         visualTransformation = VisualTransformation.None
     )
 }
-
-//TODO: registerLastNameField entfernen
-/*
-@Composable
-fun RegisterLastNameField(
-    value: String,
-    onChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    label: String = "Nachname",
-    placeholder: String = "Gib Deinen Nachnamen ein"
-) {
-
-    val focusManager = LocalFocusManager.current
-    val leadingIcon = @Composable {
-        Icon(
-            Icons.Default.Person,
-            contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
-        )
-    }
-
-    TextField(
-        value = value,
-        onValueChange = onChange,
-        modifier = modifier,
-        leadingIcon = leadingIcon,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-        keyboardActions = KeyboardActions(
-            onNext = { focusManager.moveFocus(FocusDirection.Down) }
-        ),
-        //placeholder = { Text(placeholder) },
-        label = { Text(label) },
-        singleLine = true,
-        visualTransformation = VisualTransformation.None
-    )
-} */
 
 

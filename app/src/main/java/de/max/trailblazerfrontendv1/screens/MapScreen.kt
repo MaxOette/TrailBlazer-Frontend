@@ -1,6 +1,5 @@
 package de.max.trailblazerfrontendv1.screens
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,8 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
@@ -48,30 +45,10 @@ fun MapScreen(
         GeneralConstants.fetchingGps = true;
     }
     if (!GeneralConstants.fetchingGps && !GeneralConstants.dialogAck) {
-        GpsTrackingDisabledDialog(mutableStateOf(true), applicationContext)
+        GpsTrackingDisabledDialog(mutableStateOf(true))
     }
 
     ViewModelHolder.ViewModelHolderObject.mapsViewModel = viewModel
-
-
-    //val smallPolygonLocations: MutableList<TileData> = mutableListOf()
-
-    //UserConstants.testTileData.filter { (it.opacity == 0) }
-    //    .map {
-    //        listOf(
-    //            LatLng(it.posUpperRight[0], it.posUpperRight[1]),
-    //            LatLng(it.posLowerRight[0], it.posLowerRight[1]),
-    //            LatLng(it.posLowerLeft[0], it.posLowerLeft[1]),
-    //            LatLng(it.posUpperLeft[0], it.posUpperLeft[1]),
-    //        )
-    //    }
-
-    val germanyMapBounds = listOf(
-        LatLng(47.270111, 5.86633), //südwest
-        LatLng(47.270111, 15.04473), //südost
-        LatLng(55.092927, 15.04473), //nordost
-        LatLng(55.092927, 5.86633)  //nordwest
-    )
 
     val mainPolygonBounds = listOf(
         LatLng(30.0, -12.0), //südwest
@@ -79,15 +56,6 @@ fun MapScreen(
         LatLng(70.0, 33.0), //nordost
         LatLng(70.0, -12.0)  //nordwest
     )
-
-
-    //val holeList = listOf(
-    //    smallPolygonLocations
-    //)
-
-    //val uiSettings = remember {
-    //    MapUiSettings(myLocationButtonEnabled = true, zoomControlsEnabled = false)
-    //}
 
     val cameraPosition = rememberCameraPositionState {
         CameraPosition.fromLatLngZoom(
@@ -148,7 +116,7 @@ fun MapScreen(
                 )
                 polygonData.value = TileApi.tileService.getTiles(
                     cameraPosition.position.target.latitude,
-                    cameraPosition.position.target.longitude, /* cameraPosition.position.zoom.toInt() */
+                    cameraPosition.position.target.longitude,
                     GeneralConstants.volatileZoom.toInt().toByte()
                 ).filter { (it.opacity == 0) }
                     .map {
