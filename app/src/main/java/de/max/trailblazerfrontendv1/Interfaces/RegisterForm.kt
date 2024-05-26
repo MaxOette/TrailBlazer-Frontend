@@ -18,8 +18,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,35 +31,34 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
-import de.max.trailblazerfrontendv1.Api.LoginApi
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import de.max.trailblazerfrontendv1.Api.RegisterApi
 import de.max.trailblazerfrontendv1.Api.RegisterUserData
 import de.max.trailblazerfrontendv1.LoginActivity
-import de.max.trailblazerfrontendv1.MainActivity
-import de.max.trailblazerfrontendv1.Util.UserConstants
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -72,6 +74,23 @@ fun RegisterForm(onLoginClicked: () -> Unit, activity: FragmentActivity) {
         }
         val context = LocalContext.current
         val biometricAuthHelper = remember { BiometricAuthHelper(activity) }
+        var enableFingerprintButton = remember { mutableStateOf(true) }
+
+        LaunchedEffect(key1 = Unit) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+                val sharedPreferences = EncryptedSharedPreferences.create(
+                    "secure_prefs",
+                    masterKeyAlias,
+                    context,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                )
+                if(sharedPreferences.contains("email")) {
+                    enableFingerprintButton.value = false
+                }
+            }
+        }
 
         Text(
             text = "Registrieren",
@@ -117,15 +136,20 @@ fun RegisterForm(onLoginClicked: () -> Unit, activity: FragmentActivity) {
                     submit = { checkRegisterCredentials(credentials, context) },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(28.dp))
-                Button(
-                    onClick = { credentials.cipher = biometricAuthHelper.authenticate(credentials.email) },
-                    shape = RoundedCornerShape(18.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Fingerabdruck hinterlegen")
+
+                if (enableFingerprintButton.value) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { credentials.cipher = biometricAuthHelper.authenticate(credentials.email) },
+                        enabled = (credentials.email != "" && credentials.email.contains("@") && credentials.email.contains(".") && credentials.pwd != ""),
+                        shape = RoundedCornerShape(18.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Fingerprint, contentDescription = "")
+                        Text("  Fingerabdruck hinterlegen")
+                    }
                 }
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = { checkRegisterCredentials(credentials, context) },
                     enabled = credentials.isNotEmpty(),
@@ -297,7 +321,7 @@ fun RegisterPasswordField(
         keyboardActions = KeyboardActions(
             onDone = {
                 keyboardController?.hide()
-                checkRegisterCredentials(creds, context)
+                //checkRegisterCredentials(creds, context)
             }
         ),
         //placeholder = { Text(placeholder) },

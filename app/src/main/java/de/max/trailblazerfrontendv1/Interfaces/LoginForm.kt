@@ -20,7 +20,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -71,7 +73,11 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit, activity: FragmentActivity) {
+fun LoginForm(
+    onRegisterClicked: () -> Unit,
+    onPwResetClicked: () -> Unit,
+    activity: FragmentActivity
+) {
     val context = LocalContext.current
     val biometricLoginHelper = remember { BiometricLoginHelper(activity) }
     var enableFingerprintButton = remember { mutableStateOf(false) }
@@ -86,7 +92,7 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit, activ
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
             )
-            if(sharedPreferences.contains("email")) {
+            if (sharedPreferences.contains("email")) {
                 enableFingerprintButton.value = true
             }
         }
@@ -105,14 +111,14 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit, activ
             fontSize = 36.sp
         )
         Column(
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 30.dp)
         ) {
             Column(
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -148,19 +154,21 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit, activ
                     shape = RoundedCornerShape(18.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Login")
+                    Text("Login  ")
+                    Icon(Icons.Default.ArrowForward, contentDescription = "")
                 }
-                //if (BiometricAuthHelper.isBiometricAvailable(context)) {
+                Spacer(modifier = Modifier.height(96.dp))
+                if (enableFingerprintButton.value) {
                     Button(
                         onClick = { biometricLoginHelper.authenticate() },
                         enabled = enableFingerprintButton.value,
                         shape = RoundedCornerShape(18.dp),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     ) {
-                        Text("Mit Fingerabdruck einloggen")
+                        Icon(Icons.Default.Fingerprint, contentDescription = "")
                     }
-                //}
-                Spacer(modifier = Modifier.height(16.dp))
+                }
+                Spacer(modifier = Modifier.height(96.dp))
             }
             Text(
                 text = buildAnnotatedString {
@@ -179,8 +187,8 @@ fun LoginForm(onRegisterClicked: () -> Unit, onPwResetClicked: () -> Unit, activ
 }
 
 
-fun adminLogin(context: Context){
-    val loginUserData = LoginUserData (
+fun adminLogin(context: Context) {
+    val loginUserData = LoginUserData(
 //        email = "datev@test.de",
 //        password = "password123."
 //        email= "email@email.de",
@@ -213,14 +221,15 @@ fun adminLogin(context: Context){
 
 
 fun checkCredentials(creds: Credentials, context: Context) {
-    if(creds.isNotEmpty()){
-        val loginUserData = LoginUserData (
+    if (creds.isNotEmpty()) {
+        val loginUserData = LoginUserData(
             email = creds.login,
             password = creds.pwd
         )
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                val response = LoginApi.loginService.postLoginUser("UserPasswordAuth", loginUserData)
+                val response =
+                    LoginApi.loginService.postLoginUser("UserPasswordAuth", loginUserData)
                 println("###################")
                 println(response)
                 UserConstants.refreshToken = response.refresh_token
@@ -232,16 +241,20 @@ fun checkCredentials(creds: Credentials, context: Context) {
                     context.startActivity(Intent(context, MainActivity::class.java))
                     (context as Activity).finish()
                 }
-            }catch(e: Exception){
+            } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Zugangsdaten inkorrekt: ${e.message}", Toast.LENGTH_LONG)
+                    Toast.makeText(
+                        context,
+                        "Zugangsdaten inkorrekt: ${e.message}",
+                        Toast.LENGTH_LONG
+                    )
                         .show()
                 }
                 println("error occured during login ${e.message}")
             }
 
         }
-    }else{
+    } else {
         Toast.makeText(context, "Zugangsdaten inkorrekt", Toast.LENGTH_LONG).show()
     }
 }

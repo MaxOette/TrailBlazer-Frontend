@@ -39,26 +39,26 @@ class BiometricLoginHelper(private val context: Context) {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
-                    Toast.makeText(context, "Authentication error: $errString", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Biometrie-Vorgang abgebrochen", Toast.LENGTH_LONG)
                         .show()
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
                     accessCredsAndLogin()
-                    Toast.makeText(context, "Authentication succeeded!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Fingerabdruck erfolgreich erkannt", Toast.LENGTH_LONG).show()
                 }
 
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
-                    Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Fingerabdruck-Erkennung fehlgeschlagen", Toast.LENGTH_LONG).show()
                 }
             })
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Biometric login for my app")
-            .setSubtitle("Log in using your biometric credential")
-            .setNegativeButtonText("Use account password")
+            .setTitle("Biometrie-Login")
+            .setSubtitle("Halte deinen Finger an den Sensor.")
+            .setNegativeButtonText("Abbrechen")
             .build()
     }
 

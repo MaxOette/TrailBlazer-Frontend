@@ -330,7 +330,7 @@ fun ProfileOverviewCard(profilePicture: Bitmap?, onProfilePictureClick: () -> Un
             } else {
                 println("kein Bild gefunden, default verwendet")
                 Image(
-                    painter = painterResource(id = R.drawable.profile_pic),
+                    painter = painterResource(id = R.drawable.trail_blazer_app_icon),
                     contentDescription = null,
                     modifier = Modifier
                         .size(120.dp)
@@ -527,7 +527,7 @@ fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
                         )
                     } else {
                         Image(
-                            painter = painterResource(id = R.drawable.profile_pic),
+                            painter = painterResource(id = R.drawable.trailblazer_app_icon_192),
                             contentDescription = null,
                             modifier = Modifier
                                 .size(50.dp)

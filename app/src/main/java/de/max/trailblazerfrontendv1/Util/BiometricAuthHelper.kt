@@ -31,7 +31,7 @@ class BiometricAuthHelper(private val context: Context) {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
-                    Toast.makeText(context, "Authentication error: $errString", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "Biometrie-Vorgang abgebrochen", Toast.LENGTH_LONG)
                         .show()
                 }
 
@@ -47,22 +47,22 @@ class BiometricAuthHelper(private val context: Context) {
                     )
                     if(!sharedPreferences.contains(email)) {
                         generateAndStoreToken()
-                        Toast.makeText(context, "Authentication succeeded!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Fingerabdruck erfolgreich hinterlegt!", Toast.LENGTH_LONG).show()
                     } else {
-                        Toast.makeText(context, "Funktion zur Zeit nicht verfügbar!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Auf diesem Gerät ist bereits ein Fingerabdruck hinterlegt!", Toast.LENGTH_LONG).show()
                     }
                 }
 
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
-                    Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Fingerabdruck-Erkennung fehlgeschlagen", Toast.LENGTH_LONG).show()
                 }
             })
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Biometric login for my app")
-            .setSubtitle("Log in using your biometric credential")
-            .setNegativeButtonText("Use account password")
+            .setTitle("Biometrie-Registrierung")
+            .setSubtitle("Hinterlege deinen Fingerabdruck, um dich später über Biometrie schneller einloggen zu können.")
+            .setNegativeButtonText("Abbrechen")
             .build()
     }
 

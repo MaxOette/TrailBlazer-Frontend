@@ -10,8 +10,8 @@ class UserConstants {
          var accessToken: String = ""
          var email: String = ""
          var username: String = ""
-         var userLat: Double = 48.8092627
-         var userLng: Double = 8.9775588
+         var userLat: Double = 48.4455824
+         var userLng: Double = 8.6956908
          var cameraPosition = CameraPosition.fromLatLngZoom(LatLng(userLat, userLng), GeneralConstants.volatileZoom)
 
          var testTileData: List<TileData> = emptyList()
