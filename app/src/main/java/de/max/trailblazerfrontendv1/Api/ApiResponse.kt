@@ -34,9 +34,10 @@ data class TileData(
 
 data class Friend(
     val uuid: String,
+    val username: String,
     val email: String,
     val acceptedAt: String,
-    val stats: Float
+    val germanyPercentage: Float
 )
 
 data class Invite(

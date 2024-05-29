@@ -458,7 +458,7 @@ fun InviteCard(invite: Invite, onInviteHandled: suspend () -> Unit) {
 fun friendCard(friend: Friend, onDeleteFriendHandled: suspend () -> Unit) {
     val context = LocalContext.current
     val email = friend.email
-    val progress = friend.stats
+    val progress = friend.germanyPercentage
     val uuid = friend.uuid
     val coroutineScope = rememberCoroutineScope()
     var friendProfilePicture by remember { mutableStateOf<Bitmap?>(null) }
