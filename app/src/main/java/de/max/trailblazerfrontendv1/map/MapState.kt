@@ -1,7 +1,8 @@
-package de.max.trailblazerfrontendv1.presentation
+package de.max.trailblazerfrontendv1.map
 
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
+import de.max.trailblazerfrontendv1.Util.GeneralConstants
 
 /**
  * NORMAL = Flache Karte mit Daten/Infos
@@ -26,6 +27,12 @@ import com.google.maps.android.compose.MapType
  * #####################################################
  *
  */
+
 data class MapState(
-    val properties: MapProperties = MapProperties(mapType = MapType.TERRAIN)
+    var properties: MapProperties = MapProperties(
+        mapType = MapType.TERRAIN, isMyLocationEnabled = true,
+        latLngBoundsForCameraTarget = GeneralConstants.cameraBounds,
+        maxZoomPreference = GeneralConstants.maxZoom,
+        minZoomPreference = GeneralConstants.minZoom
+    )
 )

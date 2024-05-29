@@ -1,25 +1,23 @@
-package de.max.trailblazerfrontendv1.presentation
+package de.max.trailblazerfrontendv1.screens
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.JointType
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.GroundOverlay
-import com.google.maps.android.compose.GroundOverlayPosition
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Polygon
-import de.max.trailblazerfrontendv1.R
+import com.google.maps.android.compose.rememberCameraPositionState
+import de.max.trailblazerfrontendv1.Util.UserConstants
+import de.max.trailblazerfrontendv1.map.MapsViewModel
 
 @Composable
 fun MapScreen(
-    viewModel: MapsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    viewModel: MapsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
 ) {
 
     val smallPolygonLocations = listOf(
@@ -67,16 +65,21 @@ fun MapScreen(
 
     val holeList = listOf(
         smallPolygonLocations
-        )
+    )
 
 
     val uiSettings = remember {
-        MapUiSettings(zoomControlsEnabled = true)
+        MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = true)
     }
+
+    val cameraPosition = CameraPosition.fromLatLngZoom(LatLng(UserConstants.userLat, UserConstants.userLng), 14f)
+    val cameraPositionState = rememberCameraPositionState { position = cameraPosition }
+
     GoogleMap(
         modifier = Modifier.fillMaxSize(),
         properties = viewModel.state.properties,
-        uiSettings = uiSettings
+        uiSettings = uiSettings,
+        cameraPositionState = cameraPositionState
     ) {
 
         Polygon(
@@ -95,7 +98,7 @@ fun MapScreen(
             onClick = {}
         )
 
-        /*
+/*
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(55.00248983,6.009073390399999), LatLng(55.092927,6.151816780799999))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(55.00248983,6.294560171199999), LatLng(55.092927,6.4373035615999985))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(55.00248983,6.580046951999998), LatLng(55.092927,6.722790342399998))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
@@ -159,6 +162,6 @@ fun MapScreen(
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(54.91205266,13.859959862399984), LatLng(55.00248983,14.002703252799984))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(54.91205266,14.145446643199984), LatLng(55.00248983,14.288190033599983))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
         GroundOverlay(position = GroundOverlayPosition.create(LatLngBounds(LatLng(54.91205266,14.430933423999983), LatLng(55.00248983,14.573676814399983))), image = BitmapDescriptorFactory.fromResource(R.drawable.grauer_pixel))
-    */
+*/
     }
 }

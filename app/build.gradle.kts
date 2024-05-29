@@ -1,8 +1,6 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    //id("com.google.dagger.hilt.android") version "2.44"
-    //kotlin("kapt")
 }
 
 android {
@@ -57,10 +55,29 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:4.3.3")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
 
-    //Hilt
-    //implementation("com.google.dagger:hilt-android:2.44")
+    //Permissions
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+
+    //Fingerprint
+    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.security:security-crypto:1.1.0-alpha03")
+
+    //Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    //kapt("com.google.dagger:hilt-android-compiler:2.44")
+
+    //NavigationBar
+    implementation("androidx.compose.ui:ui:1.6.5")
+    implementation("androidx.compose.material:material:1.6.5")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    //GPS
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
+    //DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.0")
+
+    //HTTP Logging
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 
     //Android
     implementation(libs.androidx.core.ktx)
@@ -71,6 +88,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -78,4 +99,9 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    //more icons
+    implementation("androidx.compose.material:material-icons-extended:1.4.3")
+    //api
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.5.0")
 }
